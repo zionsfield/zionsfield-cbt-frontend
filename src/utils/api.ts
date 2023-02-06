@@ -5,7 +5,7 @@ export const http = axios.create({
   withCredentials: true,
 });
 
-export function getQueryFromObject<T>(obj: T): string {
+export function getQueryFromObject(obj: any): string {
   let query: string = "";
   Object.entries(obj).forEach((value: any) => {
     if (!value[1] && value[1] !== false && value[1] !== 0) return;
