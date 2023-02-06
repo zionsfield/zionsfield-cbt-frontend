@@ -18,3 +18,14 @@ export function getQueryFromObject<T>(obj: T): string {
     .join("&");
   return query;
 }
+
+export function getObjectFromQuery(query: string): any {
+  let obj: any = {};
+  if (!query) return obj;
+  for (const char of query.slice(1).split("&")) {
+    const key = char.split("=")[0];
+    const value = char.split("=")[1];
+    obj[key] = value;
+  }
+  return obj;
+}
