@@ -63,19 +63,22 @@ const PrincipalStudents = (props: Props) => {
         <button
           disabled={page == 0}
           className={`${
-            page == 0 && "text-gray-400"
-          } border border-gray-400 text-black p-1 rounded-md`}
+            page == 0 ? "text-gray-400" : "text-black"
+          } border border-gray-400 p-1 rounded-md`}
         >
           <FontAwesomeIcon icon={faArrowLeft} /> Prev
         </button>
         <p>
-          Showing {parseInt(page as any) + 1} of {Math.ceil(studentsCount / 10)}
+          Showing {parseInt(page as any) + 1} of{" "}
+          {studentsCount === 0 ? 1 : Math.ceil(studentsCount / 10)}
         </p>
         <button
           disabled={page == Math.floor(studentsCount / 10)}
           className={`${
-            page == Math.floor(studentsCount / 10) && "text-gray-400"
-          } border border-gray-500 text-black p-1 rounded-md`}
+            page == Math.floor(studentsCount / 10)
+              ? "text-gray-400"
+              : "text-black"
+          } border border-gray-500 p-1 rounded-md`}
         >
           Next <FontAwesomeIcon icon={faArrowRight} />
         </button>
