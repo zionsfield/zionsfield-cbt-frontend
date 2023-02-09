@@ -12,7 +12,7 @@ const Teacher = (props: Props) => {
   const [subjectClassesCount, setSubjectClassesCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
   const [examsCount, setExamsCount] = useState(0);
-  const [formerExamsCount, setFormerExamsCount] = useState(0);
+  const [futureExamsCount, setFutureExamsCount] = useState(0);
   const { doRequest: getSubjectClasses } = useRequest({
     url: `/api/teachers/subject-classes?userId=${user!.id}`,
     method: "get",
@@ -33,6 +33,9 @@ const Teacher = (props: Props) => {
             new Date(exam.startTime).getTime() + exam.duration * 60000
           ).toISOString() < new Date().toISOString()
       );
+      const filteredFuture = data.data.exams.filter(
+        (exam: any) => exam.startTime > new Date().toISOString()
+      );
       const filteredCurrent = data.data.exams.filter(
         (exam: any) =>
           new Date(
@@ -40,7 +43,7 @@ const Teacher = (props: Props) => {
           ).toISOString() > new Date().toISOString() &&
           exam.startTime < new Date().toISOString()
       );
-      setFormerExamsCount(filteredFormer.length);
+      setFutureExamsCount(filteredFuture.length);
       setExamsCount(filteredCurrent.length);
     },
   });
@@ -82,9 +85,9 @@ const Teacher = (props: Props) => {
             <div className="rounded-md bg-pink-200 text-center py-6">
               <h2 className="text-xl text-pink-500">
                 <span className="font-semibold text-3xl">
-                  {formerExamsCount}
+                  {futureExamsCount}
                 </span>{" "}
-                Exam(s) already written
+                Exam(s) scheduled to be written
               </h2>
             </div>
           </div>

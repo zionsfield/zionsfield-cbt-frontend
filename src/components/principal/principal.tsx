@@ -11,7 +11,7 @@ const Principal = ({}: Props) => {
   const user = useAppSelector((state) => state.users.user);
   const [teachersCount, setTeachersCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
-  const [formerExamsCount, setFormerExamsCount] = useState(0);
+  const [futureExamsCount, setFutureExamsCount] = useState(0);
   const [examsCount, setExamsCount] = useState(0);
   const { doRequest: getTeachers } = useRequest({
     url: "/api/teachers",
@@ -33,6 +33,9 @@ const Principal = ({}: Props) => {
             new Date(exam.startTime).getTime() + exam.duration * 60000
           ).toISOString() < new Date().toISOString()
       );
+      const filteredFuture = data.data.exams.filter(
+        (exam: any) => exam.startTime > new Date().toISOString()
+      );
       const filteredCurrent = data.data.exams.filter(
         (exam: any) =>
           new Date(
@@ -40,9 +43,9 @@ const Principal = ({}: Props) => {
           ).toISOString() > new Date().toISOString() &&
           exam.startTime < new Date().toISOString()
       );
-      setFormerExamsCount(filteredFormer.length);
+      setFutureExamsCount(filteredFuture.length);
       setExamsCount(filteredCurrent.length);
-      // setFormerExamsCount(data.data.formerExamsCount);
+      // setFutureExamsCount(data.data.futureExamsCount);
       // setExamsCount(data.data.count);
     },
   });
@@ -50,7 +53,9 @@ const Principal = ({}: Props) => {
     (async () => {
       await getTeachers();
       await getStudents();
-      await getExamsByDate({}, `/${new Date().toISOString().split("T")[0]}`);
+      await getExamsByDate();
+      // {},
+      // `?date=${new Date().toISOString().split("T")[0]}`
     })();
   }, []);
   return (
@@ -82,9 +87,9 @@ const Principal = ({}: Props) => {
             <div className="rounded-md bg-pink-200 text-center py-6">
               <h2 className="text-xl text-pink-500">
                 <span className="font-semibold text-3xl">
-                  {formerExamsCount}
+                  {futureExamsCount}
                 </span>{" "}
-                Exam(s) already written
+                Exam(s) scheduled to be written
               </h2>
             </div>
           </div>
