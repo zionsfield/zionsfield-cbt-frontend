@@ -1,49 +1,65 @@
-import React, { useEffect, useRef, useState } from "react";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faArrowRight,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
-import SideBar from "../SideBar";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
-import { IError, ISubjectClass } from "../../utils/typings.d";
+import { getObjectFromQuery } from "../../utils/api";
+import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
+import {
+  IError,
+  ISubjectClass,
+  UpdateSubjectClass,
+  UserState,
+} from "../../utils/typings.d";
+import SideBar from "../SideBar";
 
 type Props = {};
 
 interface FormData {
   name: string;
   email: string;
-  subjectClasses: string[];
+  subjectClasses: UpdateSubjectClass[];
 }
 
 interface SubjectClass {
   [id: string]: boolean;
 }
 
-const NewTeacher = (props: Props) => {
+const EditTeacher = (props: Props) => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<SubjectClass>({});
+  const [currentTeacher, setCurrentTeacher] = useState<UserState>();
   const nameRef = useRef<HTMLInputElement>(null!);
   const emailRef = useRef<HTMLInputElement>(null!);
-  const { doRequest: newTeacher } = useRequest({
+  const { doRequest: editTeacher } = useRequest({
     url: "/api/teachers",
-    method: "post",
+    method: "put",
+  });
+  const { doRequest: getTeacherById } = useRequest({
+    url: "/api/teachers",
+    method: "get",
+    onSuccess: (data) => setCurrentTeacher(data.data),
   });
   const { doRequest: getSubjectClasses } = useRequest({
     url: `/api/subject-classes?inUse=false`,
     method: "get",
   });
-  const [newTeacherErrors, setNewTeacherErrors] = useState<IError[]>([]);
+  const [editTeacherErrors, setEditTeacherErrors] = useState<IError[]>([]);
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
       const { data, errors } = await getSubjectClasses();
       setSubjectClasses(data.data);
+      const queryObj = getObjectFromQuery(window.location.search);
+      await getTeacherById({}, `/${queryObj.userId}`);
     })();
   }, []);
+  useEffect(() => {
+    console.log("Setting back");
+    currentTeacher?.subjectClasses.forEach((sc) => {
+      setSelected((prev) => ({ ...prev, [sc.id]: sc.inUse }));
+    });
+  }, [currentTeacher?.subjectClasses]);
   const displayError = (errors: IError[], field?: string) => {
     if (errors.findIndex((e) => e.field === "name") > -1) {
       nameRef.current.style.borderColor = "rgb(239, 68, 68)";
@@ -61,7 +77,7 @@ const NewTeacher = (props: Props) => {
     ) {
       emailRef.current.style.borderColor = "rgb(156, 163, 175)";
     }
-    return newTeacherErrors
+    return editTeacherErrors
       .filter((e) => e.field === field)
       .map((e, i) => (
         <p className="text-red-500 font-semibold text-xs" key={i + 1}>
@@ -71,11 +87,13 @@ const NewTeacher = (props: Props) => {
   };
   const submit = async (e: any) => {
     e.preventDefault();
-    const subjectClassesList = Object.keys(selected).filter(
-      (key) => selected[key]
-    );
-    if (subjectClassesList.length < 1) {
-      setNewTeacherErrors([{ message: "Subject Classes are required" }]);
+    const subjectClassesList = Object.keys(selected).map((key) => ({
+      id: key,
+      inUse: selected[key],
+    }));
+
+    if (subjectClassesList.filter((sc) => sc.inUse).length < 1) {
+      setEditTeacherErrors([{ message: "Subject Classes are required" }]);
       return;
     }
     const formData: FormData = {
@@ -84,15 +102,15 @@ const NewTeacher = (props: Props) => {
       subjectClasses: subjectClassesList,
     };
     console.log(formData);
-    const { data, errors } = await newTeacher(formData);
+    const queryObj = getObjectFromQuery(window.location.search);
+    const { data, errors } = await editTeacher(formData, `/${queryObj.userId}`);
     console.log(errors);
-    setNewTeacherErrors(errors);
+    setEditTeacherErrors(errors);
     if (errors.length === 0) {
       navigate(LinkRoutes.DASHBOARD);
       window.location.reload();
     }
   };
-
   return (
     <div className="flex mt-5">
       <SideBar current={SideBarCurrent.Teachers} role={Role.PRINCIPAL} />
@@ -107,30 +125,62 @@ const NewTeacher = (props: Props) => {
           </button>
         </Link>
         <div className="mt-5">
-          <h1 className="font-bold text-xl md:text-2xl">Create new teacher</h1>
+          <h1 className="font-bold text-xl md:text-2xl">Update teacher</h1>
           <form className="space-y-10 mt-3" onSubmit={submit}>
             <div className="space-y-5">
               <div className="">
                 <input
+                  defaultValue={currentTeacher?.name}
                   ref={nameRef}
                   type="text"
                   placeholder="Full Name"
                   className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400`}
                 />
-                {displayError(newTeacherErrors, "name")}
+                {displayError(editTeacherErrors, "name")}
               </div>
               <div className="">
                 <input
+                  defaultValue={currentTeacher?.email}
                   ref={emailRef}
                   type="email"
                   placeholder="Email"
                   className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400`}
                 />
-                {displayError(newTeacherErrors, "email")}
+                {displayError(editTeacherErrors, "email")}
               </div>
               <div>
                 <label className="text-lg font-semibold">Subject Classes</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-y-3 md:gap-x-2">
+                  {currentTeacher?.subjectClasses.map((s) => (
+                    <div
+                      className={`${
+                        selected[s.id] === true && "bg-blue-400 text-white"
+                      } hover:bg-blue-400 hover:text-white transition duration-300 ease-in w-full cursor-pointer border-blue-400 border px-3 py-1 rounded`}
+                      key={s.id}
+                      onClick={() => {
+                        const current = document.getElementById(s.id);
+                        if (!current) throw new Error();
+                        // (current as HTMLInputElement).value === "off"
+                        const value = !selected[s.id] ? "on" : "off";
+                        (current as HTMLInputElement).value = value;
+                        setSelected((prev) => ({
+                          ...prev,
+                          [s.id]: value === "on",
+                        }));
+                      }}
+                    >
+                      <input
+                        id={s.id}
+                        defaultValue={s.inUse ? "on" : "off"}
+                        type="checkbox"
+                        className="hidden"
+                        name="subjectClass"
+                      />
+                      <span>
+                        {s.class.className} {s.subject.name}
+                      </span>
+                    </div>
+                  ))}
                   {subjectClasses.map((s) => (
                     <div
                       className={`${
@@ -162,13 +212,13 @@ const NewTeacher = (props: Props) => {
                     </div>
                   ))}
                 </div>
-                {displayError(newTeacherErrors, "subjectClasses")}
+                {displayError(editTeacherErrors, "subjectClasses")}
               </div>
             </div>
-            {displayError(newTeacherErrors)}
+            {displayError(editTeacherErrors)}
             <div className="">
               <input
-                value="Create Teacher"
+                value="Update Teacher"
                 type="submit"
                 className="cursor-pointer w-full md:w-[70%] bg-black rounded-md px-3 py-2 text-white shadow-md"
               />
@@ -180,4 +230,4 @@ const NewTeacher = (props: Props) => {
   );
 };
 
-export default NewTeacher;
+export default EditTeacher;

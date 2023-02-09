@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useRequest from "../hooks/useRequest";
 import { LinkRoutes } from "../utils/enums";
-import { IError } from "../utils/typings";
+import { IError } from "../utils/typings.d";
 
 type Props = {};
 

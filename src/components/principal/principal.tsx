@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
 import { Role, SideBarCurrent } from "../../utils/enums";
+import ChangePassword from "../ChangePassword";
 import SideBar from "../SideBar";
 
 type Props = {};
@@ -10,6 +11,7 @@ const Principal = ({}: Props) => {
   const user = useAppSelector((state) => state.users.user);
   const [teachersCount, setTeachersCount] = useState(0);
   const [studentsCount, setStudentsCount] = useState(0);
+  const [formerExamsCount, setFormerExamsCount] = useState(0);
   const [examsCount, setExamsCount] = useState(0);
   const { doRequest: getTeachers } = useRequest({
     url: "/api/teachers",
@@ -24,7 +26,25 @@ const Principal = ({}: Props) => {
   const { doRequest: getExamsByDate } = useRequest({
     url: "/api/exams",
     method: "get",
-    onSuccess: (data) => setExamsCount(data.data.count),
+    onSuccess: (data) => {
+      const filteredFormer = data.data.exams.filter(
+        (exam: any) =>
+          new Date(
+            new Date(exam.startTime).getTime() + exam.duration * 60000
+          ).toISOString() < new Date().toISOString()
+      );
+      const filteredCurrent = data.data.exams.filter(
+        (exam: any) =>
+          new Date(
+            new Date(exam.startTime).getTime() + exam.duration * 60000
+          ).toISOString() > new Date().toISOString() &&
+          exam.startTime < new Date().toISOString()
+      );
+      setFormerExamsCount(filteredFormer.length);
+      setExamsCount(filteredCurrent.length);
+      // setFormerExamsCount(data.data.formerExamsCount);
+      // setExamsCount(data.data.count);
+    },
   });
   useEffect(() => {
     (async () => {
@@ -56,11 +76,20 @@ const Principal = ({}: Props) => {
             <div className="rounded-md bg-green-200 text-center py-6">
               <h2 className="text-xl text-green-500">
                 <span className="font-semibold text-3xl">{examsCount}</span>{" "}
-                Exam(s) been written today
+                Exam(s) been written now
+              </h2>
+            </div>
+            <div className="rounded-md bg-pink-200 text-center py-6">
+              <h2 className="text-xl text-pink-500">
+                <span className="font-semibold text-3xl">
+                  {formerExamsCount}
+                </span>{" "}
+                Exam(s) already written
               </h2>
             </div>
           </div>
         </div>
+        <ChangePassword />
       </div>
     </div>
   );

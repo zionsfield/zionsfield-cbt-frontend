@@ -5,7 +5,7 @@ export interface UserState {
   name: string;
   email: string;
   role: string;
-  subjectClasses: string[];
+  subjectClasses: ISubjectClass[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +26,11 @@ export interface IClass {
   updatedAt: Date;
 }
 
+export interface UpdateSubjectClass {
+  id: string;
+  inUse: boolean;
+}
+
 export interface ISubjectClass {
   id: string;
   class: IClass;
@@ -36,12 +41,12 @@ export interface ISubjectClass {
 export interface IExam {
   id: string;
   name: string;
-  subjectClass: string;
-  questions: string[];
+  subjectClass: ISubjectClass;
+  questions: IQuestion[];
   questionNumber: number;
-  startTime: Date;
+  startTime: string;
   duration: number;
-  term: string;
+  term: ITerm;
   teacher: string;
   createdAt: Date;
   updatedAt: Date;

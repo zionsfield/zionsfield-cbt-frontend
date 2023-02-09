@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faArrowRight,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
-import SideBar from "../SideBar";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
-import { IError, ISubjectClass } from "../../utils/typings.d";
+import { getObjectFromQuery } from "../../utils/api";
+import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
+import { IError, ISubjectClass, UserState } from "../../utils/typings.d";
+import SideBar from "../SideBar";
 
 type Props = {};
 
@@ -23,27 +20,43 @@ interface SubjectClass {
   [id: string]: boolean;
 }
 
-const NewTeacher = (props: Props) => {
+const EditStudent = (props: Props) => {
   const navigate = useNavigate();
+  const [currentStudent, setCurrentStudent] = useState<UserState>();
   const [selected, setSelected] = useState<SubjectClass>({});
   const nameRef = useRef<HTMLInputElement>(null!);
   const emailRef = useRef<HTMLInputElement>(null!);
-  const { doRequest: newTeacher } = useRequest({
-    url: "/api/teachers",
-    method: "post",
+  const { doRequest: newStudent } = useRequest({
+    url: "/api/students",
+    method: "put",
+  });
+  const { doRequest: getStudentById } = useRequest({
+    url: "/api/students",
+    method: "get",
+    onSuccess: (data) => setCurrentStudent(data.data),
   });
   const { doRequest: getSubjectClasses } = useRequest({
-    url: `/api/subject-classes?inUse=false`,
+    url: `/api/subject-classes?inUse=true`,
     method: "get",
   });
-  const [newTeacherErrors, setNewTeacherErrors] = useState<IError[]>([]);
+  const [editStudentErrors, setEditStudentErrors] = useState<IError[]>([]);
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
       const { data, errors } = await getSubjectClasses();
+      console.log(data.data);
       setSubjectClasses(data.data);
+      const queryObj = getObjectFromQuery(window.location.search);
+      await getStudentById({}, `/${queryObj.userId}`);
     })();
   }, []);
+  useEffect(() => {
+    console.log("Setting back");
+    currentStudent?.subjectClasses.forEach((sc) => {
+      console.log(sc.inUse);
+      setSelected((prev) => ({ ...prev, [sc.id]: sc.inUse }));
+    });
+  }, [currentStudent?.subjectClasses]);
   const displayError = (errors: IError[], field?: string) => {
     if (errors.findIndex((e) => e.field === "name") > -1) {
       nameRef.current.style.borderColor = "rgb(239, 68, 68)";
@@ -61,7 +74,7 @@ const NewTeacher = (props: Props) => {
     ) {
       emailRef.current.style.borderColor = "rgb(156, 163, 175)";
     }
-    return newTeacherErrors
+    return editStudentErrors
       .filter((e) => e.field === field)
       .map((e, i) => (
         <p className="text-red-500 font-semibold text-xs" key={i + 1}>
@@ -75,7 +88,7 @@ const NewTeacher = (props: Props) => {
       (key) => selected[key]
     );
     if (subjectClassesList.length < 1) {
-      setNewTeacherErrors([{ message: "Subject Classes are required" }]);
+      setEditStudentErrors([{ message: "Subject Classes are required" }]);
       return;
     }
     const formData: FormData = {
@@ -84,18 +97,18 @@ const NewTeacher = (props: Props) => {
       subjectClasses: subjectClassesList,
     };
     console.log(formData);
-    const { data, errors } = await newTeacher(formData);
+    const queryObj = getObjectFromQuery(window.location.search);
+    const { data, errors } = await newStudent(formData, `/${queryObj.userId}`);
     console.log(errors);
-    setNewTeacherErrors(errors);
+    setEditStudentErrors(errors);
     if (errors.length === 0) {
       navigate(LinkRoutes.DASHBOARD);
       window.location.reload();
     }
   };
-
   return (
     <div className="flex mt-5">
-      <SideBar current={SideBarCurrent.Teachers} role={Role.PRINCIPAL} />
+      <SideBar current={SideBarCurrent.Students} role={Role.PRINCIPAL} />
       <div className="px-2 md:px-6 flex-1">
         <Link
           to={LinkRoutes.DASHBOARD}
@@ -103,30 +116,32 @@ const NewTeacher = (props: Props) => {
         >
           <button className="flex space-x-2 font-bold items-center">
             <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Back to teachers</span>
+            <span>Back to students</span>
           </button>
         </Link>
         <div className="mt-5">
-          <h1 className="font-bold text-xl md:text-2xl">Create new teacher</h1>
+          <h1 className="font-bold text-xl md:text-2xl">Update student</h1>
           <form className="space-y-10 mt-3" onSubmit={submit}>
             <div className="space-y-5">
               <div className="">
                 <input
+                  defaultValue={currentStudent?.name}
                   ref={nameRef}
                   type="text"
                   placeholder="Full Name"
                   className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400`}
                 />
-                {displayError(newTeacherErrors, "name")}
+                {displayError(editStudentErrors, "name")}
               </div>
               <div className="">
                 <input
+                  defaultValue={currentStudent?.email}
                   ref={emailRef}
                   type="email"
                   placeholder="Email"
                   className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400`}
                 />
-                {displayError(newTeacherErrors, "email")}
+                {displayError(editStudentErrors, "email")}
               </div>
               <div>
                 <label className="text-lg font-semibold">Subject Classes</label>
@@ -162,13 +177,13 @@ const NewTeacher = (props: Props) => {
                     </div>
                   ))}
                 </div>
-                {displayError(newTeacherErrors, "subjectClasses")}
+                {displayError(editStudentErrors, "subjectClasses")}
               </div>
             </div>
-            {displayError(newTeacherErrors)}
+            {displayError(editStudentErrors)}
             <div className="">
               <input
-                value="Create Teacher"
+                value="Update Student"
                 type="submit"
                 className="cursor-pointer w-full md:w-[70%] bg-black rounded-md px-3 py-2 text-white shadow-md"
               />
@@ -180,4 +195,4 @@ const NewTeacher = (props: Props) => {
   );
 };
 
-export default NewTeacher;
+export default EditStudent;

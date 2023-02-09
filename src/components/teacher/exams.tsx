@@ -1,19 +1,228 @@
-import React from "react";
-import { Role, SideBarCurrent } from "../../utils/enums";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useRequest from "../../hooks/useRequest";
+import { useAppSelector } from "../../store/hooks";
+import { getObjectFromQuery, getQueryFromObject } from "../../utils/api";
+import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
+import { IExam } from "../../utils/typings.d";
 import SideBar from "../SideBar";
+import NewExam from "./newExam";
 
 type Props = {};
 
 const TeacherExams = (props: Props) => {
-  const l = window.location.search;
-  const query = new URLSearchParams(l);
-  console.log(query);
-  return (
-    <div className="flex mt-5">
-      <SideBar current={SideBarCurrent.Exams} role={Role.TEACHER} />
-      <div className="px-2 md:px-6">List of Exams</div>
-    </div>
-  );
+  const user = useAppSelector((state) => state.users.user);
+  const [exams, setExams] = useState<IExam[]>([]);
+  const [savedExams, setSavedExams] = useState<any[]>([]);
+  // const [examsCount, setExamsCount] = useState(0);
+  const [currentExams, setCurrentExams] = useState<IExam[]>([]);
+  const [formerExams, setFormerExams] = useState<IExam[]>([]);
+  const searchRef = useRef<HTMLInputElement>(null!);
+  const navigate = useNavigate();
+  const { doRequest: getExams } = useRequest({
+    url: `/api/exams-by-teacher?teacher=${user!.id}`,
+    method: "get",
+    onSuccess: (data) => {
+      setExams(
+        data.data.exams.filter(
+          (exam: any) => exam.startTime > new Date().toISOString()
+        )
+      );
+      // console.log(
+      //   new Date(
+      //     new Date("2023-02-07T19:50:00.000Z").getTime() + 60 * 60000
+      //   ).toISOString() > new Date().toISOString()
+      // );
+      // console.log("2023-02-07T19:50:00.000Z" < new Date().toISOString());
+      // console.log("2023-02-07T19:50:00.000Z" > new Date().toISOString());
+      // setExamsCount(data.data.count);
+      setCurrentExams(
+        data.data.exams.filter(
+          (exam: any) =>
+            new Date(
+              new Date(exam.startTime).getTime() + exam.duration * 60000
+            ).toISOString() > new Date().toISOString() &&
+            exam.startTime < new Date().toISOString()
+        )
+      );
+      setFormerExams(
+        data.data.exams.filter(
+          (exam: any) =>
+            new Date(
+              new Date(exam.startTime).getTime() + exam.duration * 60000
+            ).toISOString() < new Date().toISOString()
+        )
+      );
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      await loadExams();
+      const cachedExams = localStorage.getItem("exams");
+      if (cachedExams) {
+        const examsCached: any[] = JSON.parse(cachedExams);
+        setSavedExams(examsCached);
+      }
+    })();
+  }, []);
+  const toNew = (fakeId?: string) => {
+    const query = window.location.search;
+    const queryObj = getObjectFromQuery(query);
+    queryObj["new"] = true;
+    fakeId && (queryObj["fakeId"] = fakeId);
+    const newQuery = getQueryFromObject(queryObj);
+    return newQuery;
+  };
+  const loadExams = async () => {
+    const query = window.location.search;
+    const queryObj = getObjectFromQuery(query);
+
+    const newQuery = getQueryFromObject({
+      ...queryObj,
+      name: searchRef?.current?.value,
+    });
+
+    navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
+    await getExams(
+      {},
+      `${searchRef?.current?.value && `&${searchRef?.current?.value}`}`
+    );
+  };
+  const display = () => {
+    if (getObjectFromQuery(window.location.search)["new"])
+      return (
+        <NewExam
+          fakeId={
+            getObjectFromQuery(window.location.search)["fakeId"] ||
+            Math.random().toString()
+          }
+        />
+      );
+    return (
+      <div className="flex mt-5">
+        <div className="fixed bottom-3 right-3 md:right-5">
+          <button
+            onClick={() => navigate(`${LinkRoutes.DASHBOARD}?${toNew()}`)}
+            className="bg-blue-500 text-center text-white px-4 py-3 rounded-full z-50"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
+        </div>
+        <SideBar current={SideBarCurrent.Exams} role={Role.TEACHER} />
+        <div className="px-2 md:px-6 flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Exams</h1>
+          <div className="mt-10">
+            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Search any exam..."
+                className={`focus:border-blue-500 flex-1 shadow-md transition duration-300 ease-in outline-none px-5 py-2 w-full md:w-[70%] mx-auto border border-gray-400 rounded-md`}
+              />
+              <button
+                onClick={loadExams}
+                className="flex-1 bg-blue-500 rounded-md px-3 py-2 text-white shadow-md"
+              >
+                Search
+              </button>
+            </div>
+            <div className="mt-5">
+              <div className="mb-2 rounded-md bg-gray-200 text-gray-600 px-5 py-4">
+                <h2>EXAM NAME - START TIME</h2>
+              </div>
+              <div>
+                <h2 className="font-semibold text-lg">Saved Exams</h2>
+              </div>
+              {savedExams.map((exam, i) => (
+                <div
+                  key={i + 1}
+                  onClick={() =>
+                    navigate(`${LinkRoutes.DASHBOARD}?${toNew(exam.fakeId)}`)
+                  }
+                  className={`${
+                    i % 2 === 1 && "bg-gray-100"
+                  } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                >
+                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h4 className="text-sm">
+                    {exam.startTime
+                      ? `${new Date(exam.startTime).toDateString()} ${new Date(
+                          exam.startTime
+                        ).toLocaleTimeString()}`
+                      : "No Date Set"}
+                  </h4>
+                </div>
+              ))}
+              <div>
+                <h2 className="font-semibold text-lg">Current Exams</h2>
+              </div>
+              {currentExams.map((exam, i) => (
+                <div
+                  key={exam.id}
+                  className={`${
+                    i % 2 === 1 && "bg-gray-100"
+                  } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                >
+                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h4 className="text-sm">
+                    {new Date(exam.startTime).toDateString()}{" "}
+                    {new Date(exam.startTime).toLocaleTimeString()} -{" "}
+                    {new Date(
+                      new Date(exam.startTime).getTime() + exam.duration * 60000
+                    ).toLocaleTimeString()}
+                  </h4>
+                </div>
+              ))}
+              <div>
+                <h2 className="font-semibold text-lg">Scheduled Exams</h2>
+              </div>
+              {exams.map((exam, i) => (
+                <div
+                  key={exam.id}
+                  className={`${
+                    i % 2 === 1 && "bg-gray-100"
+                  } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                >
+                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h4 className="text-sm">
+                    {new Date(exam.startTime).toDateString()}{" "}
+                    {new Date(exam.startTime).toLocaleTimeString()} -{" "}
+                    {new Date(
+                      new Date(exam.startTime).getTime() + exam.duration * 60000
+                    ).toLocaleTimeString()}
+                  </h4>
+                </div>
+              ))}
+              <div>
+                <h2 className="font-semibold text-lg">Former Exams</h2>
+              </div>
+              {formerExams.map((exam, i) => (
+                <div
+                  key={exam.id}
+                  className={`${
+                    i % 2 === 1 && "bg-gray-100"
+                  } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                >
+                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h4 className="text-sm">
+                    {new Date(exam.startTime).toDateString()}{" "}
+                    {new Date(exam.startTime).toLocaleTimeString()} -{" "}
+                    {new Date(
+                      new Date(exam.startTime).getTime() + exam.duration * 60000
+                    ).toLocaleTimeString()}
+                  </h4>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  return display();
 };
 
 export default TeacherExams;

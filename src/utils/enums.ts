@@ -16,3 +16,10 @@ export enum SideBarCurrent {
   Students = "Students",
   Exams = "Exams",
 }
+
+export enum Option {
+  A = "A",
+  B = "B",
+  C = "C",
+  D = "D",
+}

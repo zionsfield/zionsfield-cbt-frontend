@@ -9,14 +9,13 @@ import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
 import SideBar from "../SideBar";
 import { Link, useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
-import { IError, ISubjectClass } from "../../utils/typings";
+import { IError, ISubjectClass } from "../../utils/typings.d";
 
 type Props = {};
 
 interface FormData {
   name: string;
   email: string;
-  password: string;
   subjectClasses: string[];
 }
 
@@ -29,7 +28,6 @@ const NewStudent = (props: Props) => {
   const [selected, setSelected] = useState<SubjectClass>({});
   const nameRef = useRef<HTMLInputElement>(null!);
   const emailRef = useRef<HTMLInputElement>(null!);
-  const passwordRef = useRef<HTMLInputElement>(null!);
   const { doRequest: newStudent } = useRequest({
     url: "/api/students",
     method: "post",
@@ -38,7 +36,7 @@ const NewStudent = (props: Props) => {
     url: `/api/subject-classes?inUse=true`,
     method: "get",
   });
-  const [newStudentErrors, setnewStudentErrors] = useState<IError[]>([]);
+  const [newStudentErrors, setNewStudentErrors] = useState<IError[]>([]);
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
@@ -63,14 +61,6 @@ const NewStudent = (props: Props) => {
     ) {
       emailRef.current.style.borderColor = "rgb(156, 163, 175)";
     }
-    if (errors.findIndex((e) => e.field === "password") > -1) {
-      passwordRef.current.style.borderColor = "rgb(239, 68, 68)";
-    } else if (
-      errors.findIndex((e) => e.field === "password") === -1 &&
-      errors.length > 0
-    ) {
-      passwordRef.current.style.borderColor = "rgb(156, 163, 175)";
-    }
     return newStudentErrors
       .filter((e) => e.field === field)
       .map((e, i) => (
@@ -84,16 +74,19 @@ const NewStudent = (props: Props) => {
     const subjectClassesList = Object.keys(selected).filter(
       (key) => selected[key]
     );
+    if (subjectClassesList.length < 1) {
+      setNewStudentErrors([{ message: "Subject Classes are required" }]);
+      return;
+    }
     const formData: FormData = {
       name: nameRef.current.value,
       email: emailRef.current.value,
-      password: passwordRef.current.value,
       subjectClasses: subjectClassesList,
     };
     console.log(formData);
     const { data, errors } = await newStudent(formData);
     console.log(errors);
-    setnewStudentErrors(errors);
+    setNewStudentErrors(errors);
     if (errors.length === 0) {
       navigate(LinkRoutes.DASHBOARD);
       window.location.reload();
@@ -134,15 +127,6 @@ const NewStudent = (props: Props) => {
                   className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400`}
                 />
                 {displayError(newStudentErrors, "email")}
-              </div>
-              <div className="">
-                <input
-                  ref={passwordRef}
-                  type="password"
-                  placeholder="Password"
-                  className="focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full md:w-[70%] mx-auto border-b-2 border-gray-400"
-                />
-                {displayError(newStudentErrors, "password")}
               </div>
               <div>
                 <label className="text-lg font-semibold">Subject Classes</label>
