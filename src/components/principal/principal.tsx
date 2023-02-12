@@ -45,8 +45,6 @@ const Principal = ({}: Props) => {
       );
       setFutureExamsCount(filteredFuture.length);
       setExamsCount(filteredCurrent.length);
-      // setFutureExamsCount(data.data.futureExamsCount);
-      // setExamsCount(data.data.count);
     },
   });
   useEffect(() => {
@@ -54,8 +52,6 @@ const Principal = ({}: Props) => {
       await getTeachers();
       await getStudents();
       await getExamsByDate();
-      // {},
-      // `?date=${new Date().toISOString().split("T")[0]}`
     })();
   }, []);
   return (

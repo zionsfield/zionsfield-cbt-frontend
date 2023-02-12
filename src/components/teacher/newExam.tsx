@@ -1,16 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faArrowRight,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { LinkRoutes, Option, Role, SideBarCurrent } from "../../utils/enums";
 import SideBar from "../SideBar";
 import { Link, useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
-import { IError, IQuestion, ISubjectClass } from "../../utils/typings.d";
+import { IError, ISubjectClass } from "../../utils/typings.d";
 import Question from "../Question";
+import { padZero } from "../../utils";
 
 type Props = {
   fakeId: string;
@@ -30,10 +27,6 @@ interface FormData {
     correctOption: Option;
   }[];
   startTime: string;
-}
-
-interface SubjectClass {
-  [id: string]: boolean;
 }
 
 const NewExam = ({ fakeId }: Props) => {
@@ -57,6 +50,15 @@ const NewExam = ({ fakeId }: Props) => {
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
+      console.log(new Date().toISOString().split("T")[0]);
+      console.log(
+        new Date().toISOString().split("T")[1].split(":").slice(0, 2).join(":")
+      );
+      console.log(
+        `${new Date().getHours()}:${padZero(new Date().getMinutes())}:${padZero(
+          new Date().getSeconds()
+        )}`
+      );
       const { data, errors } = await getSubjectClasses();
       setSubjectClasses(data.data);
       const cachedExams = localStorage.getItem("exams");
@@ -152,6 +154,10 @@ const NewExam = ({ fakeId }: Props) => {
       duration: parseInt(durationRef.current.value),
     };
     console.log(formData);
+    if (formData.startTime < new Date().toISOString()) {
+      setNewExamErrors([{ message: "Exam cannot be scheduled for the past" }]);
+      return;
+    }
     if (formData.questions.length != formData.questionNumber) {
       setNewExamErrors([{ message: "Questions Not Complete" }]);
       return;
@@ -226,6 +232,10 @@ const NewExam = ({ fakeId }: Props) => {
               </div>
               <div className="">
                 <input
+                  // min="2023-02-09T10:37:00"
+                  min={`${new Date().toISOString().split("T")[0]}T${padZero(
+                    new Date().getHours()
+                  )}:${padZero(new Date().getMinutes())}:00`}
                   ref={startTimeRef}
                   type="datetime-local"
                   placeholder="Exam Name"

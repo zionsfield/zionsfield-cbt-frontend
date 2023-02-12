@@ -4,7 +4,7 @@ import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
 import { getObjectFromQuery, getQueryFromObject } from "../../utils/api";
 import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
-import { IExam } from "../../utils/typings.d";
+import { IExam, ITerm } from "../../utils/typings.d";
 import SideBar from "../SideBar";
 import Exam from "./Exam";
 
@@ -18,18 +18,23 @@ const StudentExams = (props: Props) => {
   const [formerExams, setFormerExams] = useState<IExam[]>([]);
   const searchRef = useRef<HTMLInputElement>(null!);
   const navigate = useNavigate();
+  const [terms, setTerms] = useState<ITerm[]>([]);
+  const { doRequest: getTerms } = useRequest({
+    url: "/api/terms",
+    method: "get",
+    onSuccess: (data) => setTerms(data.data),
+  });
   const { doRequest: getExams } = useRequest({
     url: `/api/exams-by-student?student=${user!.id}`,
     method: "get",
     onSuccess: (data) => {
-      console.log();
       setExams(
-        data.data.filter(
+        data.data.exams.filter(
           (exam: any) => exam.startTime > new Date().toISOString()
         )
       );
       setCurrentExams(
-        data.data.filter(
+        data.data.exams.filter(
           (exam: any) =>
             new Date(
               new Date(exam.startTime).getTime() + exam.duration * 60000
@@ -38,7 +43,7 @@ const StudentExams = (props: Props) => {
         )
       );
       setFormerExams(
-        data.data.filter(
+        data.data.exams.filter(
           (exam: any) =>
             new Date(
               new Date(exam.startTime).getTime() + exam.duration * 60000
@@ -51,6 +56,7 @@ const StudentExams = (props: Props) => {
   useEffect(() => {
     (async () => {
       await loadExams();
+      await getTerms();
     })();
   }, []);
 
@@ -62,20 +68,8 @@ const StudentExams = (props: Props) => {
     });
     console.log(queryObj);
 
-    const newQuery = getQueryFromObject({
-      ...queryObj,
-      name: searchRef?.current?.value,
-    });
-
     navigate(`${LinkRoutes.DASHBOARD}?${queryObj}`);
-    await getExams(
-      {},
-      `${queryObj ? `&${queryObj}` : ""}`
-      // `${
-      //   searchRef?.current?.value !== undefined &&
-      //   `&${searchRef?.current?.value}`
-      // }`
-    );
+    await getExams({}, `${queryObj ? `&${queryObj}` : ""}`);
   };
   const toExam = (examId: string) => {
     let queryObj = getObjectFromQuery(window.location.search);
@@ -84,7 +78,19 @@ const StudentExams = (props: Props) => {
     };
     return getQueryFromObject(queryObj);
   };
+  const toResult = (examId: string) => {
+    let queryObj = getObjectFromQuery(window.location.search);
+    queryObj = {
+      examId,
+      result: true,
+    };
+    return getQueryFromObject(queryObj);
+  };
   const display = () => {
+    if (getObjectFromQuery(window.location.search)["result"]) {
+      const examId = getObjectFromQuery(window.location.search)["examId"];
+      return <Exam examId={examId} result />;
+    }
     if (getObjectFromQuery(window.location.search)["examId"]) {
       const examId = getObjectFromQuery(window.location.search)["examId"];
       return <Exam examId={examId} />;
@@ -167,26 +173,40 @@ const StudentExams = (props: Props) => {
                   </div>
                 ))}
                 <div>
-                  <h2 className="font-semibold text-lg">Former Exams</h2>
+                  <h2 className="font-semibold text-lg">Past Exams</h2>
                 </div>
-                {formerExams.map((exam, i) => (
-                  <div
-                    key={exam.id}
-                    className={`${
-                      i % 2 === 1 && "bg-gray-100"
-                    } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
-                  >
-                    <h2 className="text-black text-lg font-bold">
-                      {exam.name}
-                    </h2>
-                    <h4 className="text-sm">
-                      {new Date(exam.startTime).toDateString()}{" "}
-                      {new Date(exam.startTime).toLocaleTimeString()} -{" "}
-                      {new Date(
-                        new Date(exam.startTime).getTime() +
-                          exam.duration * 60000
-                      ).toLocaleTimeString()}
-                    </h4>
+                {terms.map((term) => (
+                  <div key={term.id}>
+                    <p className="font-bold text-lg cursor-pointer">
+                      {term.startYear}/{term.endYear} Term {term.term}
+                    </p>
+                    {formerExams
+                      .filter((e) => e.term.id === term.id)
+                      .map((exam, i) => (
+                        <div
+                          onClick={() =>
+                            navigate(
+                              `${LinkRoutes.DASHBOARD}/?${toResult(exam.id)}`
+                            )
+                          }
+                          key={exam.id}
+                          className={`${
+                            i % 2 === 1 && "bg-gray-100"
+                          } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                        >
+                          <h2 className="text-black text-lg font-bold">
+                            {exam.name}
+                          </h2>
+                          <h4 className="text-sm">
+                            {new Date(exam.startTime).toDateString()}{" "}
+                            {new Date(exam.startTime).toLocaleTimeString()} -{" "}
+                            {new Date(
+                              new Date(exam.startTime).getTime() +
+                                exam.duration * 60000
+                            ).toLocaleTimeString()}
+                          </h4>
+                        </div>
+                      ))}
                   </div>
                 ))}
               </div>

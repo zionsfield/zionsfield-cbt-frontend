@@ -52,6 +52,22 @@ export interface IExam {
   updatedAt: Date;
 }
 
+export interface CorrectQuestion {
+  questionId: string;
+  optionPicked: Option;
+}
+
+export interface IResult {
+  id: string;
+  examId: string;
+  studentId: string;
+  marks: number;
+  correctQuestions: CorrectQuestion[];
+  incorrectQuestions: CorrectQuestion[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IResponse {
   id: string;
   examId: string;

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
+import React, { useEffect } from "react";
 import "./App.css";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setUser } from "./store/userReducer";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { LinkRoutes, Role } from "./utils/enums";
+import { LinkRoutes } from "./utils/enums";
 import Header from "./components/Header";
 import useRequest from "./hooks/useRequest";
 import Dashboard from "./pages/dashboard";

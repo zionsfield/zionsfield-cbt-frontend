@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   index: number;
@@ -14,7 +14,6 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
   const [optionC, setOptionC] = useState("");
   const [optionD, setOptionD] = useState("");
   const [correctOption, setCorrectOption] = useState("A");
-  // const questionObj = questionObjs[index];
   useEffect(() => {
     const cachedExams = localStorage.getItem("exams");
     if (cachedExams) {
@@ -45,6 +44,7 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
     }
   }, []);
   useEffect(() => {
+    console.log(optionA, optionB, optionC, optionD);
     setQuestionObjs((prev) => {
       prev[index] = {
         question,

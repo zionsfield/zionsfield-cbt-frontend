@@ -22,7 +22,9 @@ const Student = (props: Props) => {
     method: "get",
     onSuccess: (data) => {
       const filteredFuture = data.data.exams.filter(
-        (exam: any) => exam.startTime > new Date().toISOString()
+        (exam: any) =>
+          exam.startTime > new Date().toISOString() &&
+          new Date(exam.startTime).getDay() === new Date().getDay()
       );
       const filteredCurrent = data.data.exams.filter(
         (exam: any) =>
@@ -38,6 +40,7 @@ const Student = (props: Props) => {
   useEffect(() => {
     (async () => {
       await getExamsByDate();
+      await getSubjectClasses();
     })();
   }, []);
   return (
@@ -67,7 +70,7 @@ const Student = (props: Props) => {
                 <span className="font-semibold text-3xl">
                   {futureExamsCount}
                 </span>{" "}
-                Exam(s) scheduled to be written
+                Exam(s) to be written today
               </h2>
             </div>
           </div>

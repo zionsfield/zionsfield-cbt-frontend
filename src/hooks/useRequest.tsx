@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { http } from "../utils/api";
-import { IError } from "../utils/typings.d";
 
 interface UseRequest {
   url: string;
@@ -17,7 +16,7 @@ const useRequest = ({ url, method, body, onSuccess }: UseRequest) => {
       const res = await http[method](
         url + extUrl,
         // @ts-ignore
-        isFd ? props : { ...body, ...props }
+        { ...body, ...props }
       );
       if (onSuccess) {
         onSuccess(res.data);

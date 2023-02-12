@@ -23,8 +23,8 @@ const ScheduledExam = ({ exam, timeLeft }: Props) => {
             {new Date(exam.startTime).toLocaleTimeString()}
           </span>
           <span>
-            Exam will start in {Math.floor(timeLeft / 60)} minutes{" "}
-            {timeLeft % 60} seconds
+            Exam will start in {Math.floor(timeLeft / 3600)} hours{" "}
+            {Math.floor((timeLeft / 60) % 60)} minutes {timeLeft % 60} seconds
           </span>
         </div>
       </div>

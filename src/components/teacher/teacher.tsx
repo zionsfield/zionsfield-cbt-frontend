@@ -27,12 +27,6 @@ const Teacher = (props: Props) => {
     url: `/api/exams-by-teacher?teacher=${user!.id}`,
     method: "get",
     onSuccess: (data) => {
-      const filteredFormer = data.data.exams.filter(
-        (exam: any) =>
-          new Date(
-            new Date(exam.startTime).getTime() + exam.duration * 60000
-          ).toISOString() < new Date().toISOString()
-      );
       const filteredFuture = data.data.exams.filter(
         (exam: any) => exam.startTime > new Date().toISOString()
       );
