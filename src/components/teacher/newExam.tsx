@@ -150,12 +150,13 @@ const NewExam = ({ fakeId }: Props) => {
   };
   const submit = async (e: any) => {
     e.preventDefault();
-
+    const st1 = new Date(startTimeRef.current.value);
+    console.log(st1.toUTCString());
     const formData: FormData = {
       name: nameRef.current.value,
       subjectClass: subjectClassRef.current.value,
       questions: questionObjs,
-      startTime: startTimeRef.current.value,
+      startTime: st1.toUTCString(),
       questionNumber: parseInt(questionNumberRef.current.value),
       duration: parseInt(durationRef.current.value),
     };
