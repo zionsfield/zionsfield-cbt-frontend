@@ -70,7 +70,7 @@ const FormerExam = ({ examId }: Props) => {
 
   return exam ? (
     <div className="flex mt-5">
-      <SideBar current={SideBarCurrent.Exams} role={Role.STUDENT} />
+      <SideBar current={SideBarCurrent.Exams} role={Role.TEACHER} />
       <div className="px-2 md:px-6 flex-1">
         <h1 className="text-2xl md:text-3xl font-bold">{exam?.name}</h1>
 

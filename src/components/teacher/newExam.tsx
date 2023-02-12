@@ -8,6 +8,7 @@ import useRequest from "../../hooks/useRequest";
 import { IError, ISubjectClass } from "../../utils/typings.d";
 import Question from "../Question";
 import { padZero } from "../../utils";
+import { useAppSelector } from "../../store/hooks";
 
 type Props = {
   fakeId: string;
@@ -31,6 +32,7 @@ interface FormData {
 
 const NewExam = ({ fakeId }: Props) => {
   const navigate = useNavigate();
+  const user = useAppSelector((state) => state.users.user);
   const [questions, setQuestions] = useState<any[]>([]);
   const nameRef = useRef<HTMLInputElement>(null!);
   const subjectClassRef = useRef<HTMLSelectElement>(null!);
@@ -42,8 +44,12 @@ const NewExam = ({ fakeId }: Props) => {
     url: "/api/exams",
     method: "post",
   });
+  // const { doRequest: getSubjectClasses } = useRequest({
+  //   url: `/api/subject-classes?inUse=true`,
+  //   method: "get",
+  // });
   const { doRequest: getSubjectClasses } = useRequest({
-    url: `/api/subject-classes?inUse=true`,
+    url: `/api/teachers/subject-classes?userId=${user!.id}`,
     method: "get",
   });
   const [newExamErrors, setNewExamErrors] = useState<IError[]>([]);
@@ -60,7 +66,7 @@ const NewExam = ({ fakeId }: Props) => {
       //   )}`
       // );
       const { data, errors } = await getSubjectClasses();
-      setSubjectClasses(data.data);
+      setSubjectClasses(data.data.subjectClasses);
       const cachedExams = localStorage.getItem("exams");
       if (cachedExams) {
         console.log(fakeId);
