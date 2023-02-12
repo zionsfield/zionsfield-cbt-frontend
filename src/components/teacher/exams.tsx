@@ -35,7 +35,7 @@ const TeacherExams = (props: Props) => {
       console.log(data.data);
       setExams(
         data.data.exams.filter(
-          (exam: any) => exam.startTime > new Date().toISOString()
+          (exam: any) => new Date(exam.startTime) > new Date()
         )
       );
       setCurrentExams(
@@ -43,8 +43,7 @@ const TeacherExams = (props: Props) => {
           (exam: any) =>
             new Date(
               new Date(exam.startTime).getTime() + exam.duration * 60000
-            ).toISOString() > new Date().toISOString() &&
-            exam.startTime < new Date().toISOString()
+            ) > new Date() && new Date(exam.startTime) < new Date()
         )
       );
       setFormerExams(
@@ -52,7 +51,7 @@ const TeacherExams = (props: Props) => {
           (exam: any) =>
             new Date(
               new Date(exam.startTime).getTime() + exam.duration * 60000
-            ).toISOString() < new Date().toISOString()
+            ) < new Date()
         )
       );
     },

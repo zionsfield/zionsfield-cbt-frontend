@@ -23,15 +23,13 @@ const Student = (props: Props) => {
     onSuccess: (data) => {
       const filteredFuture = data.data.exams.filter(
         (exam: any) =>
-          exam.startTime > new Date().toISOString() &&
+          new Date(exam.startTime) > new Date() &&
           new Date(exam.startTime).getDay() === new Date().getDay()
       );
       const filteredCurrent = data.data.exams.filter(
         (exam: any) =>
-          new Date(
-            new Date(exam.startTime).getTime() + exam.duration * 60000
-          ).toISOString() > new Date().toISOString() &&
-          exam.startTime < new Date().toISOString()
+          new Date(new Date(exam.startTime).getTime() + exam.duration * 60000) >
+            new Date() && new Date(exam.startTime) < new Date()
       );
       setFutureExamsCount(filteredFuture.length);
       setExamsCount(filteredCurrent.length);

@@ -50,15 +50,15 @@ const NewExam = ({ fakeId }: Props) => {
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
-      console.log(new Date().toISOString().split("T")[0]);
-      console.log(
-        new Date().toISOString().split("T")[1].split(":").slice(0, 2).join(":")
-      );
-      console.log(
-        `${new Date().getHours()}:${padZero(new Date().getMinutes())}:${padZero(
-          new Date().getSeconds()
-        )}`
-      );
+      // console.log(new Date().toISOString().split("T")[0]);
+      // console.log(
+      //   new Date().toISOString().split("T")[1].split(":").slice(0, 2).join(":")
+      // );
+      // console.log(
+      //   `${new Date().getHours()}:${padZero(new Date().getMinutes())}:${padZero(
+      //     new Date().getSeconds()
+      //   )}`
+      // );
       const { data, errors } = await getSubjectClasses();
       setSubjectClasses(data.data);
       const cachedExams = localStorage.getItem("exams");
@@ -154,7 +154,7 @@ const NewExam = ({ fakeId }: Props) => {
       duration: parseInt(durationRef.current.value),
     };
     console.log(formData);
-    if (formData.startTime < new Date().toISOString()) {
+    if (new Date(formData.startTime) < new Date()) {
       setNewExamErrors([{ message: "Exam cannot be scheduled for the past" }]);
       return;
     }

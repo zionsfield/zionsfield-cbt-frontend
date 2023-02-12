@@ -25,7 +25,7 @@ const CurrentExam = ({ exam }: Props) => {
   });
   useEffect(() => {
     const timeToSubmit = async () => {
-      console.log(new Date().toISOString());
+      console.log(new Date());
       const endTime = new Date(
         new Date(exam.startTime).getTime() + exam.duration * 60000
       );
