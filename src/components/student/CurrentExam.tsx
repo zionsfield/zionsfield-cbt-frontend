@@ -21,6 +21,7 @@ const CurrentExam = ({ exam }: Props) => {
   const { doRequest: submitExam } = useRequest({
     url: `/api/students/submit-response`,
     method: "post",
+    onSuccess: () => window.location.reload(),
   });
   useEffect(() => {
     const timeToSubmit = async () => {
@@ -32,7 +33,7 @@ const CurrentExam = ({ exam }: Props) => {
       setTimeLeft(t);
       if (t < 0) {
         console.log("submitting");
-        submit();
+        await submit();
       }
     };
     const timerId = setInterval(timeToSubmit, 1000);
@@ -47,8 +48,7 @@ const CurrentExam = ({ exam }: Props) => {
       optionPicked: selected[q.id] ? selected[q.id] : "",
     }));
     console.log(responses);
-    submitExam({ responses });
-    window.location.reload();
+    await submitExam({ responses });
   };
   return (
     <div className="flex mt-5">
