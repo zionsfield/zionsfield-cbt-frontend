@@ -29,10 +29,9 @@ const CurrentExam = ({ exam }: Props) => {
       const endTime = new Date(
         new Date(exam.startTime).getTime() + exam.duration * 60000
       );
-      setTimeLeft(
-        Math.round((endTime.getTime() - new Date().getTime()) / 1000)
-      );
-      if (endTime <= new Date()) {
+      const t = Math.round((endTime.getTime() - new Date().getTime()) / 1000);
+      setTimeLeft(t);
+      if (t < 0) {
         console.log("submitting");
         await submit();
       }

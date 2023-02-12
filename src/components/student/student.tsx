@@ -15,7 +15,7 @@ const Student = (props: Props) => {
   const { doRequest: getSubjectClasses } = useRequest({
     url: `/api/students/subject-classes?userId=${user!.id}`,
     method: "get",
-    onSuccess: (data) => setSubjectClassesCount(data.data.count),
+    onSuccess: (data) => setSubjectClassesCount(data.data.length),
   });
   const { doRequest: getExamsByDate } = useRequest({
     url: `/api/exams-by-student?student=${user!.id}`,

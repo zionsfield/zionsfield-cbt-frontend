@@ -203,7 +203,7 @@ const FormerExam = ({ exam }: Props) => {
                               (cq) =>
                                 cq.questionId === q.id &&
                                 cq.optionPicked === "C"
-                            ) > -1 && "500 border-red-500 text-white"
+                            ) > -1 && "bg-red-500 border-red-500 text-white"
                           } ${
                             q.correctOption === "C" &&
                             "bg-green-500 border-green-500 text-white"
