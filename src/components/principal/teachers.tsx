@@ -68,6 +68,24 @@ const Teachers = (props: Props) => {
     setPage(queryObj["page"]);
     await getTeachers({}, `/?name=${searchRef?.current?.value}&${newQuery}`);
   };
+  const incPage = async () => {
+    setPage((prev) => prev++);
+    const queryObj = getObjectFromQuery(window.location.search);
+    queryObj["page"] = parseInt(page.toString()) + 1;
+    const newQuery = getQueryFromObject(queryObj);
+    console.log(newQuery);
+    navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
+    await loadTeachers();
+  };
+  const decPage = async () => {
+    setPage((prev) => prev--);
+    const queryObj = getObjectFromQuery(window.location.search);
+    queryObj["page"] = parseInt(page.toString()) - 1;
+    const newQuery = getQueryFromObject(queryObj);
+    console.log(newQuery);
+    navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
+    await loadTeachers();
+  };
   const editTeacher = (userId: string) => {
     const queryObj = {
       userId,
@@ -90,6 +108,7 @@ const Teachers = (props: Props) => {
         <div className="flex mt-5">
           <div className="text-sm md:text-base fixed bottom-5 w-full justify-center flex items-center space-x-2">
             <button
+              onClick={decPage}
               disabled={page == 0}
               className={`${
                 page == 0 ? "text-gray-400" : "text-black"
@@ -102,9 +121,12 @@ const Teachers = (props: Props) => {
               {teachersCount === 0 ? 1 : Math.ceil(teachersCount / 10)}
             </p>
             <button
-              disabled={page == Math.floor(teachersCount / 10)}
+              onClick={incPage}
+              disabled={
+                page == Math.ceil(teachersCount / 10) - 1 || teachersCount === 0
+              }
               className={`${
-                page == Math.floor(teachersCount / 10)
+                page == Math.ceil(teachersCount / 10) - 1 || teachersCount === 0
                   ? "text-gray-400"
                   : "text-black"
               } border border-gray-500 p-1 rounded-md`}

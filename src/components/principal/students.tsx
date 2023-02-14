@@ -76,6 +76,24 @@ const PrincipalStudents = (props: Props) => {
     const query = getQueryFromObject(queryObj);
     return query;
   };
+  const incPage = async () => {
+    setPage((prev) => prev++);
+    const queryObj = getObjectFromQuery(window.location.search);
+    queryObj["page"] = parseInt(page.toString()) + 1;
+    const newQuery = getQueryFromObject(queryObj);
+    console.log(newQuery);
+    navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
+    await loadStudents();
+  };
+  const decPage = async () => {
+    setPage((prev) => prev--);
+    const queryObj = getObjectFromQuery(window.location.search);
+    queryObj["page"] = parseInt(page.toString()) - 1;
+    const newQuery = getQueryFromObject(queryObj);
+    console.log(newQuery);
+    navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
+    await loadStudents();
+  };
   const display = () => {
     if (getObjectFromQuery(window.location.search)["new"])
       return <NewStudent />;
@@ -86,6 +104,7 @@ const PrincipalStudents = (props: Props) => {
         <div className="flex mt-5">
           <div className="text-sm md:text-base fixed bottom-5 w-full justify-center flex items-center space-x-2">
             <button
+              onClick={decPage}
               disabled={page == 0}
               className={`${
                 page == 0 ? "text-gray-400" : "text-black"
@@ -98,9 +117,12 @@ const PrincipalStudents = (props: Props) => {
               {studentsCount === 0 ? 1 : Math.ceil(studentsCount / 10)}
             </p>
             <button
-              disabled={page == Math.floor(studentsCount / 10)}
+              onClick={incPage}
+              disabled={
+                page == Math.ceil(studentsCount / 10) - 1 || studentsCount === 0
+              }
               className={`${
-                page == Math.floor(studentsCount / 10)
+                page == Math.ceil(studentsCount / 10) - 1 || studentsCount === 0
                   ? "text-gray-400"
                   : "text-black"
               } border border-gray-500 p-1 rounded-md`}
