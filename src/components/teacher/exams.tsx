@@ -163,8 +163,8 @@ const TeacherExams = (props: Props) => {
                       ? `${new Date(exam.startTime).toDateString()} ${new Date(
                           exam.startTime
                         ).toLocaleTimeString()}`
-                      : "No Date Set"}
-                    -
+                      : "No Date Set"}{" "}
+                    -{" "}
                     {exam.startTime && exam.duration
                       ? new Date(
                           new Date(exam.startTime).getTime() +
