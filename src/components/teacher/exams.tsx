@@ -164,12 +164,13 @@ const TeacherExams = (props: Props) => {
                           exam.startTime
                         ).toLocaleTimeString()}`
                       : "No Date Set"}
-                    {exam.startTime &&
-                      exam.duration &&
-                      new Date(
-                        new Date(exam.startTime).getTime() +
-                          exam.duration * 60000
-                      ).toLocaleTimeString()}
+                    -
+                    {exam.startTime && exam.duration
+                      ? new Date(
+                          new Date(exam.startTime).getTime() +
+                            exam.duration * 60000
+                        ).toLocaleTimeString()
+                      : "No Duration Set"}
                   </h4>
                 </div>
               ))}
