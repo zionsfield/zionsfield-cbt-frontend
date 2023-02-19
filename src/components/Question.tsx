@@ -88,14 +88,14 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
           onChange={(e) => setOptionA(e.target.value)}
           type="text"
           placeholder="Option A"
-          className={`focus:border-blue-500 w-full transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2  mx-auto border-b-2 border-gray-400`}
+          className={`focus:border-blue-500 w-full transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 mx-auto border-b-2 border-gray-400`}
         />
         <input
           defaultValue={optionB}
           onChange={(e) => setOptionB(e.target.value)}
           type="text"
           placeholder="Option B"
-          className={`focus:border-blue-50 w-full transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 mx-auto border-b-2 border-gray-400`}
+          className={`focus:border-blue-500 w-full transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 mx-auto border-b-2 border-gray-400`}
         />
         <input
           defaultValue={optionC}
