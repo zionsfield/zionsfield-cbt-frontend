@@ -93,8 +93,14 @@ const FormerExam = ({ examId }: Props) => {
                 {students[i].name}
               </h2>{" "}
               <div>
-                <span className="font-semibold">{r ? r.marks : "N/A"}</span> /{" "}
-                <span>{exam.questionNumber}</span>
+                {r ? (
+                  <span>
+                    <span className="font-semibold">{r.marks}</span> /{" "}
+                    {exam.questionNumber}
+                  </span>
+                ) : (
+                  <span className="font-semibold">{"N/A"}</span>
+                )}
               </div>
             </div>
           ))}
