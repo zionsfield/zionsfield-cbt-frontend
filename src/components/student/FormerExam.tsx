@@ -31,7 +31,9 @@ const FormerExam = ({ exam }: Props) => {
     <div className="flex mt-5">
       <SideBar current={SideBarCurrent.Exams} role={Role.STUDENT} />
       <div className="px-2 md:px-6 flex-1">
-        <h1 className="text-2xl md:text-3xl font-bold">{exam.name}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          {exam.name} {exam.rescheduled && " (rescheduled)"}
+        </h1>
 
         <div className="mt-5">
           <div className="flex flex-col">

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
+import { padZero } from "../../utils";
 import { Role, SideBarCurrent } from "../../utils/enums";
-import { IExam, IResult, UserState } from "../../utils/typings.d";
+import { IError, IExam, IResult, UserState } from "../../utils/typings.d";
 import SideBar from "../SideBar";
 
 type Props = {
@@ -68,12 +69,71 @@ const FormerExam = ({ examId }: Props) => {
     })();
   }, [exam]);
 
+  const startTimeRef = useRef<HTMLInputElement>(null!);
+
+  const { doRequest: rescheduleExam } = useRequest({
+    url: "/api/exams/reschedule",
+    method: "patch",
+  });
+
+  const displayError = (errors: IError[], field?: string) => {
+    return reExamErrors
+      .filter((e) => e.field === field)
+      .map((e, i) => (
+        <p className="text-red-500 font-semibold text-xs" key={i + 1}>
+          {e.message}
+        </p>
+      ));
+  };
+
+  const [reExamErrors, setReExamErrors] = useState<IError[]>([]);
+
+  const submit = async (e: any) => {
+    e.preventDefault();
+    const st1 = new Date(startTimeRef.current.value);
+    const formData = {
+      newStartTime: st1.toUTCString(),
+    };
+    if (new Date(formData.newStartTime) < new Date()) {
+      setReExamErrors([{ message: "Exam cannot be scheduled for the past" }]);
+      return;
+    }
+    const { data, errors } = await rescheduleExam(formData, `/${exam!.id}`);
+    console.log(errors);
+    setReExamErrors(errors);
+    if (errors.length === 0) {
+      window.location.reload();
+    }
+  };
+
   return exam ? (
     <div className="flex mt-5">
       <SideBar current={SideBarCurrent.Exams} role={Role.TEACHER} />
       <div className="px-2 md:px-6 flex-1">
         <h1 className="text-2xl md:text-3xl font-bold">{exam?.name}</h1>
-
+        <form className="space-y-5 mt-3" onSubmit={submit}>
+          <div className="">
+            <input
+              // min="2023-02-09T10:37:00"
+              min={`${new Date().toISOString().split("T")[0]}T${padZero(
+                new Date().getHours()
+              )}:${padZero(new Date().getMinutes())}:00`}
+              ref={startTimeRef}
+              type="datetime-local"
+              placeholder="Exam Name"
+              className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-5 py-2 w-full mx-auto border-b-2 border-gray-400`}
+            />
+            {displayError(reExamErrors, "newStartTime")}
+          </div>
+          {displayError(reExamErrors)}
+          <div>
+            <input
+              value="Reschedule Exam"
+              type="submit"
+              className="cursor-pointer w-full bg-black rounded-md px-3 py-2 text-white shadow-md"
+            />
+          </div>
+        </form>
         <div className="mt-5">
           <h1 className="font-bold text-xl md:text-2xl">Students</h1>
           <div

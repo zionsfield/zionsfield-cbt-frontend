@@ -133,7 +133,7 @@ const StudentExams = (props: Props) => {
                     } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                   >
                     <h2 className="text-black text-lg font-bold">
-                      {exam.name}
+                      {exam.name} {exam.rescheduled && " (rescheduled)"}
                     </h2>
                     <h4 className="text-sm">
                       {new Date(exam.startTime).toDateString()}{" "}
@@ -159,7 +159,7 @@ const StudentExams = (props: Props) => {
                     } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                   >
                     <h2 className="text-black text-lg font-bold">
-                      {exam.name}
+                      {exam.name} {exam.rescheduled && " (rescheduled)"}
                     </h2>
                     <h4 className="text-sm">
                       {new Date(exam.startTime).toDateString()}{" "}
@@ -194,7 +194,7 @@ const StudentExams = (props: Props) => {
                           } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                         >
                           <h2 className="text-black text-lg font-bold">
-                            {exam.name}
+                            {exam.name} {exam.rescheduled && " (rescheduled)"}
                           </h2>
                           <h4 className="text-sm">
                             {new Date(exam.startTime).toDateString()}{" "}

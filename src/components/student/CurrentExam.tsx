@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
-import { IExam } from "../../utils/typings.d";
+import { IExam, IResult } from "../../utils/typings.d";
 
 type Props = {
   exam: IExam;
@@ -14,6 +14,7 @@ interface OptionPicked {
 
 const CurrentExam = ({ exam }: Props) => {
   const user = useAppSelector((state) => state.users.user);
+  const [result, setResult] = useState<IResult>();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<OptionPicked>({});
   const [timeLeft, setTimeLeft] = useState(0);
@@ -23,6 +24,17 @@ const CurrentExam = ({ exam }: Props) => {
     method: "post",
     onSuccess: () => window.location.reload(),
   });
+  const { doRequest: getResult } = useRequest({
+    url: `/api/students/results?examId=${exam.id}&studentId=${user?.id}`,
+    method: "get",
+    onSuccess: (data) => setResult(data.data),
+  });
+  useEffect(() => {
+    (async () => {
+      const { data, errors } = await getResult();
+      console.log(errors);
+    })();
+  }, []);
   useEffect(() => {
     const timeToSubmit = async () => {
       console.log(new Date());
@@ -50,7 +62,11 @@ const CurrentExam = ({ exam }: Props) => {
     console.log(responses);
     await submitExam({ responses });
   };
-  return (
+  return result ? (
+    <div className="flex mt-5">
+      <h1 className="font-bold text-xl">You have already written this exam</h1>
+    </div>
+  ) : (
     <div className="flex mt-5">
       <div className="fixed top-28 right-10">
         <span
@@ -60,7 +76,9 @@ const CurrentExam = ({ exam }: Props) => {
         </span>
       </div>
       <div className="px-2 md:px-6 flex-1">
-        <h1 className="text-xl md:text-3xl font-bold">{exam.name}</h1>
+        <h1 className="text-xl md:text-3xl font-bold">
+          {exam.name} {exam.rescheduled && " (rescheduled)"}
+        </h1>
         <div className="mt-5">
           <div className="flex flex-col">
             <h2 className="text-xl md:text-2xl font-bold">Student Details</h2>

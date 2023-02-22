@@ -157,7 +157,9 @@ const TeacherExams = (props: Props) => {
                     i % 2 === 1 && "bg-gray-100"
                   } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                 >
-                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h2 className="text-black text-lg font-bold">
+                    {exam.name} {exam.rescheduled && " (rescheduled)"}
+                  </h2>
                   <h4 className="text-sm">
                     {exam.startTime
                       ? `${new Date(exam.startTime).toDateString()} ${new Date(
@@ -184,7 +186,9 @@ const TeacherExams = (props: Props) => {
                     i % 2 === 1 && "bg-gray-100"
                   } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                 >
-                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h2 className="text-black text-lg font-bold">
+                    {exam.name} {exam.rescheduled && " (rescheduled)"}
+                  </h2>
                   <h4 className="text-sm">
                     {new Date(exam.startTime).toDateString()}{" "}
                     {new Date(exam.startTime).toLocaleTimeString()} -{" "}
@@ -204,7 +208,9 @@ const TeacherExams = (props: Props) => {
                     i % 2 === 1 && "bg-gray-100"
                   } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                 >
-                  <h2 className="text-black text-lg font-bold">{exam.name}</h2>
+                  <h2 className="text-black text-lg font-bold">
+                    {exam.name} {exam.rescheduled && " (rescheduled)"}
+                  </h2>
                   <h4 className="text-sm">
                     {new Date(exam.startTime).toDateString()}{" "}
                     {new Date(exam.startTime).toLocaleTimeString()} -{" "}
@@ -237,7 +243,7 @@ const TeacherExams = (props: Props) => {
                         } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
                       >
                         <h2 className="text-black text-lg font-bold">
-                          {exam.name}
+                          {exam.name} {exam.rescheduled && " (rescheduled)"}
                         </h2>
                         <h4 className="text-sm">
                           {new Date(exam.startTime).toDateString()}{" "}

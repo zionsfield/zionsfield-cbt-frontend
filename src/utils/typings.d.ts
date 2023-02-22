@@ -41,6 +41,7 @@ export interface ISubjectClass {
 export interface IExam {
   id: string;
   name: string;
+  rescheduled: boolean;
   subjectClass: ISubjectClass;
   questions: IQuestion[];
   questionNumber: number;
