@@ -12,11 +12,17 @@ const Student = (props: Props) => {
   const [examsCount, setExamsCount] = useState(0);
   const [subjectClassesCount, setSubjectClassesCount] = useState(0);
   const [futureExamsCount, setFutureExamsCount] = useState(0);
+  const [subjectTeachers, setSubjectTeachers] = useState<string[]>([]);
   const { doRequest: getSubjectClasses } = useRequest({
     url: `/api/students/subject-classes?userId=${user!.id}`,
     method: "get",
     onSuccess: (data) => setSubjectClassesCount(data.data.length),
   });
+  const { doRequest: getSubjectTeacher } = useRequest({
+    url: `/api/teachers`,
+    method: "get",
+  });
+
   const { doRequest: getExamsByDate } = useRequest({
     url: `/api/exams-by-student?student=${user!.id}`,
     method: "get",
@@ -39,6 +45,18 @@ const Student = (props: Props) => {
     (async () => {
       await getExamsByDate();
       await getSubjectClasses();
+      const sts = await Promise.all(
+        user!.subjectClasses.map(async (s) => {
+          const { data, errors: e } = await getSubjectTeacher(
+            {},
+            `?subjectClasses=${s.id}`
+          );
+          if (e.length === 0) {
+            return data.data.teachers?.[0].name;
+          }
+        })
+      );
+      setSubjectTeachers(sts);
     })();
   }, []);
   return (
@@ -71,6 +89,27 @@ const Student = (props: Props) => {
                 Exam(s) to be written today
               </h2>
             </div>
+          </div>
+        </div>
+        <div className="mt-5">
+          <h1 className="text-xl md:text-2xl font-bold">Subjects</h1>
+          <div className="mt-5">
+            <div className="mb-2 rounded-md bg-gray-200 text-gray-600 px-5 py-4">
+              <h2>SUBJECT NAME - TEACHER</h2>
+            </div>
+            {user?.subjectClasses.map((s, i) => (
+              <div
+                key={s.id}
+                className={`${
+                  i % 2 === 1 && "bg-gray-100"
+                } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+              >
+                <h2 className="text-black text-lg font-bold">
+                  {s.subject.name}
+                </h2>
+                <h4 className="text-sm">{subjectTeachers?.[i]}</h4>
+              </div>
+            ))}
           </div>
         </div>
         <ChangePassword />
