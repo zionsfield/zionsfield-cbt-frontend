@@ -14,6 +14,7 @@ import { UserState } from "../../utils/typings.d";
 import SideBar from "../SideBar";
 import EditStudent from "./editStudent";
 import NewStudent from "./newStudent";
+import ViewStudent from "./viewStudent";
 
 type Props = {};
 
@@ -68,10 +69,10 @@ const PrincipalStudents = (props: Props) => {
     const newQuery = getQueryFromObject(queryObj);
     return newQuery;
   };
-  const editStudent = (userId: string) => {
+  const viewStudent = (userId: string) => {
     const queryObj = {
       userId,
-      edit: true,
+      action: "VIEW",
     };
     const query = getQueryFromObject(queryObj);
     return query;
@@ -97,8 +98,10 @@ const PrincipalStudents = (props: Props) => {
   const display = () => {
     if (getObjectFromQuery(window.location.search)["new"])
       return <NewStudent />;
-    else if (getObjectFromQuery(window.location.search)["edit"])
+    else if (getObjectFromQuery(window.location.search)["action"] === "EDIT")
       return <EditStudent />;
+    else if (getObjectFromQuery(window.location.search)["action"] === "VIEW")
+      return <ViewStudent />;
     else
       return (
         <div className="flex mt-5">
@@ -170,7 +173,7 @@ const PrincipalStudents = (props: Props) => {
                     <div
                       onClick={() =>
                         navigate(
-                          `${LinkRoutes.DASHBOARD}/?${editStudent(student.id)}`
+                          `${LinkRoutes.DASHBOARD}/?${viewStudent(student.id)}`
                         )
                       }
                       className="flex-1 py-4"

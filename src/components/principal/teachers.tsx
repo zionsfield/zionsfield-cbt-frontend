@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { getObjectFromQuery, getQueryFromObject } from "../../utils/api";
 import NewTeacher from "./newTeacher";
 import EditTeacher from "./editTeacher";
+import ViewTeacher from "./viewTeacher";
 
 type Props = {};
 
@@ -86,23 +87,22 @@ const Teachers = (props: Props) => {
     navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
     await loadTeachers();
   };
-  const editTeacher = (userId: string) => {
+
+  const viewTeacher = (userId: string) => {
     const queryObj = {
       userId,
-      edit: true,
+      action: "VIEW",
     };
     const query = getQueryFromObject(queryObj);
     return query;
   };
-  const handleDelete = async () => {
-    const queryObj = getObjectFromQuery(window.location.search);
-    await deleteTeacher({}, `/${queryObj.userId}`);
-  };
   const display = () => {
     if (getObjectFromQuery(window.location.search)["new"])
       return <NewTeacher />;
-    else if (getObjectFromQuery(window.location.search)["edit"])
+    else if (getObjectFromQuery(window.location.search)["action"] === "EDIT")
       return <EditTeacher />;
+    else if (getObjectFromQuery(window.location.search)["action"] === "VIEW")
+      return <ViewTeacher />;
     else
       return (
         <div className="flex mt-5">
@@ -174,7 +174,7 @@ const Teachers = (props: Props) => {
                     <div
                       onClick={() =>
                         navigate(
-                          `${LinkRoutes.DASHBOARD}/?${editTeacher(teacher.id)}`
+                          `${LinkRoutes.DASHBOARD}/?${viewTeacher(teacher.id)}`
                         )
                       }
                       className="flex-1 py-4"
