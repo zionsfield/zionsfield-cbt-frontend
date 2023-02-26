@@ -37,7 +37,6 @@ const CurrentExam = ({ exam }: Props) => {
   }, []);
   useEffect(() => {
     const timeToSubmit = async () => {
-      console.log(new Date());
       const endTime = new Date(
         new Date(exam.startTime).getTime() + exam.duration * 60000
       );
@@ -52,7 +51,6 @@ const CurrentExam = ({ exam }: Props) => {
     return () => clearInterval(timerId);
   }, [selected]);
   const submit = async () => {
-    console.log(selected);
     const responses = exam.questions.map((q) => ({
       examId: exam.id,
       studentId: user?.id,

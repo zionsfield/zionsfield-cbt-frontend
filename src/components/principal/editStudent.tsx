@@ -44,16 +44,13 @@ const EditStudent = (props: Props) => {
   useEffect(() => {
     (async () => {
       const { data, errors } = await getSubjectClasses();
-      console.log(data.data);
       setSubjectClasses(data.data);
       const queryObj = getObjectFromQuery(window.location.search);
       await getStudentById({}, `/${queryObj.userId}`);
     })();
   }, []);
   useEffect(() => {
-    console.log("Setting back");
     currentStudent?.subjectClasses.forEach((sc) => {
-      console.log(sc.inUse);
       setSelected((prev) => ({ ...prev, [sc.id]: sc.inUse }));
     });
   }, [currentStudent?.subjectClasses]);
