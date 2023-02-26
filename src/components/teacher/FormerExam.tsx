@@ -61,10 +61,6 @@ const FormerExam = ({ examId }: Props) => {
         console.log(arr);
         setResults(arr);
       }
-
-      // await getResult();
-      // console.log(errors);
-      // console.log(data);
       console.log(exam?.questions);
     })();
   }, [exam]);

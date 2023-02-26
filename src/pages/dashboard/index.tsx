@@ -17,7 +17,6 @@ const Dashboard = ({}: Props) => {
   const user = useAppSelector((state) => state.users.user);
   const displayPrincipal = () => {
     const current = localStorage.getItem("current");
-    console.log(current);
     if (!current) return <Principal />;
     if (current === SideBarCurrent.Dashboard) return <Principal />;
     else if (current === SideBarCurrent.Teachers) return <Teachers />;
@@ -26,7 +25,6 @@ const Dashboard = ({}: Props) => {
   };
   const displayTeacher = () => {
     const current = localStorage.getItem("current");
-    console.log(current);
     if (!current) return <Teacher />;
     if (current === SideBarCurrent.Dashboard) return <Teacher />;
     else if (current === SideBarCurrent.Exams) return <TeacherExams />;
@@ -35,7 +33,6 @@ const Dashboard = ({}: Props) => {
   };
   const displayStudent = () => {
     const current = localStorage.getItem("current");
-    console.log(current);
     if (!current) return <Student />;
     if (current === SideBarCurrent.Dashboard) return <Student />;
     else if (current === SideBarCurrent.Exams) return <StudentExams />;

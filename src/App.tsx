@@ -16,9 +16,26 @@ function App() {
     url: "/api/users/me",
     method: "get",
   });
+  const { doRequest: refreshAccessToken } = useRequest({
+    url: "/api/users/refresh-token",
+    method: "post",
+  });
   useEffect(() => {
     (async () => {
-      const { data } = await getUser();
+      const { data, errors, errorStatus } = await getUser();
+      console.log(errors);
+      if (errorStatus === 463) {
+        console.log("refresh token");
+        const {
+          data: {
+            data: { access_token, user },
+          },
+        } = await refreshAccessToken({
+          refreshToken: localStorage.getItem("refreshToken"),
+        });
+        dispatch(setUser(user));
+        return;
+      }
       console.log(data);
       dispatch(setUser(data.data));
     })();

@@ -44,7 +44,6 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
     }
   }, []);
   useEffect(() => {
-    console.log(optionA, optionB, optionC, optionD);
     setQuestionObjs((prev) => {
       prev[index] = {
         question,

@@ -56,20 +56,10 @@ const NewExam = ({ fakeId }: Props) => {
   const [subjectClasses, setSubjectClasses] = useState<ISubjectClass[]>([]);
   useEffect(() => {
     (async () => {
-      // console.log(new Date().toISOString().split("T")[0]);
-      // console.log(
-      //   new Date().toISOString().split("T")[1].split(":").slice(0, 2).join(":")
-      // );
-      // console.log(
-      //   `${new Date().getHours()}:${padZero(new Date().getMinutes())}:${padZero(
-      //     new Date().getSeconds()
-      //   )}`
-      // );
       const { data, errors } = await getSubjectClasses();
       setSubjectClasses(data.data.subjectClasses);
       const cachedExams = localStorage.getItem("exams");
       if (cachedExams) {
-        console.log(fakeId);
         const examsCached: any[] = JSON.parse(cachedExams);
         const foundExamIndex = examsCached.findIndex(
           (e) => e.fakeId === fakeId
@@ -114,7 +104,6 @@ const NewExam = ({ fakeId }: Props) => {
   const saveChanges = (e: any) => {
     e.preventDefault();
 
-    console.log(questionObjs);
     const formData: FormData = {
       name: nameRef.current.value,
       subjectClass: subjectClassRef.current.value,
@@ -142,16 +131,13 @@ const NewExam = ({ fakeId }: Props) => {
     if (cachedExams) {
       const examsCached: any[] = JSON.parse(cachedExams);
       const foundExamIndex = examsCached.findIndex((e) => e.fakeId === fakeId);
-      console.log(foundExamIndex);
       if (foundExamIndex > -1) examsCached.splice(foundExamIndex, 1);
-      console.log(examsCached);
       localStorage.setItem("exams", JSON.stringify(examsCached));
     }
   };
   const submit = async (e: any) => {
     e.preventDefault();
     const st1 = new Date(startTimeRef.current.value);
-    console.log(st1.toUTCString());
     const formData: FormData = {
       name: nameRef.current.value,
       subjectClass: subjectClassRef.current.value,
@@ -185,12 +171,10 @@ const NewExam = ({ fakeId }: Props) => {
     setQuestions(new Array(parseInt(questionNumberRef.current.value)).fill(1));
     const newNo = parseInt(questionNumberRef.current.value);
     const qObjsLength = questionObjs.length;
-    console.log(newNo, qObjsLength);
     if (newNo > qObjsLength) {
       const newQs = new Array(newNo - qObjsLength).fill(1);
       setQuestionObjs((prev) => [...prev, ...newQs]);
     } else if (newNo < qObjsLength) {
-      console.log(questionObjs.slice(0, newNo));
       setQuestionObjs((prev) => prev.slice(0, newNo));
     } else {
       // setQuestionObjs(

@@ -55,7 +55,6 @@ const EditTeacher = (props: Props) => {
     })();
   }, []);
   useEffect(() => {
-    console.log("Setting back");
     currentTeacher?.subjectClasses.forEach((sc) => {
       setSelected((prev) => ({ ...prev, [sc.id]: sc.inUse }));
     });

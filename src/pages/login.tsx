@@ -58,6 +58,8 @@ const Login = ({}: Props) => {
     console.log(errors);
     setSigninErrors(errors);
     if (errors.length === 0) {
+      console.log(data.data);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
       navigate(LinkRoutes.DASHBOARD);
       window.location.reload();
     }

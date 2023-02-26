@@ -25,6 +25,7 @@ const Header = ({}: Props) => {
           className="bg-red-400 rounded-md px-3 py-2 text-white shadow-md"
           onClick={async () => {
             await signout();
+            localStorage.setItem("refreshToken", "");
             navigate(LinkRoutes.LOGIN);
             window.location.reload();
           }}

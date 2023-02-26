@@ -23,7 +23,12 @@ const useRequest = ({ url, method, body, onSuccess }: UseRequest) => {
       }
       return { data: res.data, errors: [] };
     } catch (err: any) {
-      return { data: null, errors: err.response?.data?.errors };
+      console.log(err);
+      return {
+        data: null,
+        errorStatus: err?.response?.status,
+        errors: err.response?.data?.errors,
+      };
     }
   };
 
