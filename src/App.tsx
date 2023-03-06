@@ -30,9 +30,7 @@ function App() {
           data: {
             data: { access_token, user },
           },
-        } = await refreshAccessToken({
-          // refreshToken: localStorage.getItem("refreshToken"),
-        });
+        } = await refreshAccessToken();
         dispatch(setUser(user));
         return;
       }

@@ -24,6 +24,11 @@ const useRequest = ({ url, method, body, onSuccess }: UseRequest) => {
       return { data: res.data, errors: [] };
     } catch (err: any) {
       console.log(err);
+      if (err?.response?.status === 463) {
+        console.log("fixing");
+        await http.post("/api/users/refresh-token");
+        window.location.reload();
+      }
       return {
         data: null,
         errorStatus: err?.response?.status,
