@@ -22,6 +22,7 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
       if (foundExamIndex > -1) {
         const foundExam = examsCached[foundExamIndex];
         if (foundExam.questions[index]) {
+          console.log(foundExam.questions[index].correctOption);
           setQuestion(foundExam.questions[index].question);
           setOptionA(foundExam.questions[index].optionA);
           setOptionB(foundExam.questions[index].optionB);
@@ -62,7 +63,7 @@ const Question = ({ setQuestionObjs, index, questionObjs, fakeId }: Props) => {
       <div className="flex">
         <h2 className="font-semibold text-lg flex-1">Question {index + 1}</h2>
         <select
-          defaultValue={correctOption}
+          value={correctOption}
           onChange={(e) => setCorrectOption(e.target.value)}
           className={`focus:border-blue-500 transition duration-300 ease-in bg-gray-300 outline-none px-3 py-2 mx-auto border-b-2 border-gray-400`}
         >

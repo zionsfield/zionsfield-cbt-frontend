@@ -1,9 +1,10 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
+import { deleteSavedExam } from "../../utils";
 import { getObjectFromQuery, getQueryFromObject } from "../../utils/api";
 import { LinkRoutes, Role, SideBarCurrent } from "../../utils/enums";
 import { IExam, ITerm } from "../../utils/typings.d";
@@ -150,30 +151,47 @@ const TeacherExams = (props: Props) => {
               {savedExams.map((exam, i) => (
                 <div
                   key={i + 1}
-                  onClick={() =>
-                    navigate(`${LinkRoutes.DASHBOARD}?${toNew(exam.fakeId)}`)
-                  }
                   className={`${
                     i % 2 === 1 && "bg-gray-100"
-                  } cursor-pointer hover:bg-gray-100 rounded-md text-gray-600 px-5 py-4 flex-col mb-2`}
+                  } flex cursor-pointer justify-between items-center hover:bg-gray-100 rounded-md text-gray-600 px-5 mb-2`}
                 >
-                  <h2 className="text-black text-lg font-bold">
-                    {exam.name} {exam.rescheduled && " (rescheduled)"}
-                  </h2>
-                  <h4 className="text-sm">
-                    {exam.startTime
-                      ? `${new Date(exam.startTime).toDateString()} ${new Date(
-                          exam.startTime
-                        ).toLocaleTimeString()}`
-                      : "No Date Set"}{" "}
-                    -{" "}
-                    {exam.startTime && exam.duration
-                      ? new Date(
-                          new Date(exam.startTime).getTime() +
-                            exam.duration * 60000
-                        ).toLocaleTimeString()
-                      : "No Duration Set"}
-                  </h4>
+                  <div
+                    className="flex-1 py-4"
+                    onClick={() =>
+                      navigate(`${LinkRoutes.DASHBOARD}?${toNew(exam.fakeId)}`)
+                    }
+                  >
+                    <h2 className="text-black text-lg font-bold">
+                      {exam.name} {exam.rescheduled && " (rescheduled)"}
+                    </h2>
+                    <h4 className="text-sm">
+                      {exam.startTime
+                        ? `${new Date(
+                            exam.startTime
+                          ).toDateString()} ${new Date(
+                            exam.startTime
+                          ).toLocaleTimeString()}`
+                        : "No Date Set"}{" "}
+                      -{" "}
+                      {exam.startTime && exam.duration
+                        ? new Date(
+                            new Date(exam.startTime).getTime() +
+                              exam.duration * 60000
+                          ).toLocaleTimeString()
+                        : "No Duration Set"}
+                    </h4>
+                  </div>
+                  <div className="">
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      onClick={() => {
+                        deleteSavedExam(exam.fakeId);
+                        window.location.reload();
+                      }}
+                      // onClick={() => deleteTeacher({}, `/${teacher.id}`)}
+                      className="hover:text-red-500"
+                    />
+                  </div>
                 </div>
               ))}
               <div>

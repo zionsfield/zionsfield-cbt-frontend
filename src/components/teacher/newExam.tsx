@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useRequest from "../../hooks/useRequest";
 import { IError, ISubjectClass } from "../../utils/typings.d";
 import Question from "../Question";
-import { padZero } from "../../utils";
+import { deleteSavedExam, padZero } from "../../utils";
 import { useAppSelector } from "../../store/hooks";
 
 type Props = {
@@ -15,8 +15,8 @@ type Props = {
 };
 
 interface FormData {
-  questionNumber?: number | undefined;
-  duration?: number | undefined;
+  questionNumber: number;
+  duration: number;
   name: string;
   subjectClass: string;
   questions: {
@@ -44,10 +44,6 @@ const NewExam = ({ fakeId }: Props) => {
     url: "/api/exams",
     method: "post",
   });
-  // const { doRequest: getSubjectClasses } = useRequest({
-  //   url: `/api/subject-classes?inUse=true`,
-  //   method: "get",
-  // });
   const { doRequest: getSubjectClasses } = useRequest({
     url: `/api/teachers/subject-classes?userId=${user!.id}`,
     method: "get",
@@ -109,8 +105,8 @@ const NewExam = ({ fakeId }: Props) => {
       subjectClass: subjectClassRef.current.value,
       questions: questionObjs,
       startTime: startTimeRef.current.value,
-      questionNumber: questionNumberRef.current.value as unknown as number,
-      duration: durationRef.current.value as unknown as number,
+      questionNumber: parseInt(questionNumberRef.current.value),
+      duration: parseInt(durationRef.current.value),
     };
 
     const cachedExams = localStorage.getItem("exams");
@@ -126,15 +122,7 @@ const NewExam = ({ fakeId }: Props) => {
     }
     console.log(formData);
   };
-  const deleteSavedExam = (fakeId: string) => {
-    const cachedExams = localStorage.getItem("exams");
-    if (cachedExams) {
-      const examsCached: any[] = JSON.parse(cachedExams);
-      const foundExamIndex = examsCached.findIndex((e) => e.fakeId === fakeId);
-      if (foundExamIndex > -1) examsCached.splice(foundExamIndex, 1);
-      localStorage.setItem("exams", JSON.stringify(examsCached));
-    }
-  };
+
   const submit = async (e: any) => {
     e.preventDefault();
     const st1 = new Date(startTimeRef.current.value);
