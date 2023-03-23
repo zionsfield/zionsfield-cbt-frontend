@@ -19,6 +19,14 @@ const CurrentExam = ({ exam }: Props) => {
   const [selected, setSelected] = useState<OptionPicked>({});
   const [timeLeft, setTimeLeft] = useState(0);
 
+  const inputSelected = (qId: string, option: string) => {
+    if (timeLeft < 0) return;
+    setSelected((prev) => ({
+      ...prev,
+      [qId]: option,
+    }));
+  };
+
   const { doRequest: submitExam } = useRequest({
     url: `/api/students/submit-response`,
     method: "post",
@@ -42,10 +50,10 @@ const CurrentExam = ({ exam }: Props) => {
       );
       const t = Math.round((endTime.getTime() - new Date().getTime()) / 1000);
       setTimeLeft(t);
-      if (t < 0) {
-        console.log("submitting");
-        await submit();
-      }
+      // if (t < -5) {
+      //   console.log("submitting");
+      //   await submit();
+      // }
     };
     const timerId = setInterval(timeToSubmit, 1000);
     return () => clearInterval(timerId);
@@ -70,7 +78,9 @@ const CurrentExam = ({ exam }: Props) => {
         <span
           className={`${timeLeft <= 10 && "text-red-500"} font-bold text-lg`}
         >
-          {Math.floor(timeLeft / 60)} m {timeLeft % 60} s
+          {timeLeft >= 0
+            ? `${Math.floor(timeLeft / 60)} m ${timeLeft % 60} s`
+            : `Submit Now`}
         </span>
       </div>
       <div className="px-2 md:px-6 flex-1">
@@ -121,12 +131,7 @@ const CurrentExam = ({ exam }: Props) => {
                       className={`${
                         selected[q.id] === "A" && "bg-blue-400 text-white"
                       } hover:bg-blue-400 hover:text-white transition duration-300 ease-in w-full cursor-pointer border-blue-400 border px-3 py-1 rounded`}
-                      onClick={() => {
-                        setSelected((prev) => ({
-                          ...prev,
-                          [q.id]: "A",
-                        }));
-                      }}
+                      onClick={() => inputSelected(q.id, "A")}
                     >
                       <input
                         defaultChecked
@@ -140,12 +145,7 @@ const CurrentExam = ({ exam }: Props) => {
                       className={`${
                         selected[q.id] === "B" && "bg-blue-400 text-white"
                       } hover:bg-blue-400 hover:text-white transition duration-300 ease-in w-full cursor-pointer border-blue-400 border px-3 py-1 rounded`}
-                      onClick={() => {
-                        setSelected((prev) => ({
-                          ...prev,
-                          [q.id]: "B",
-                        }));
-                      }}
+                      onClick={() => inputSelected(q.id, "B")}
                     >
                       <input
                         defaultChecked
@@ -159,12 +159,7 @@ const CurrentExam = ({ exam }: Props) => {
                       className={`${
                         selected[q.id] === "C" && "bg-blue-400 text-white"
                       } hover:bg-blue-400 hover:text-white transition duration-300 ease-in w-full cursor-pointer border-blue-400 border px-3 py-1 rounded`}
-                      onClick={() => {
-                        setSelected((prev) => ({
-                          ...prev,
-                          [q.id]: "C",
-                        }));
-                      }}
+                      onClick={() => inputSelected(q.id, "C")}
                     >
                       <input
                         defaultChecked
@@ -178,12 +173,7 @@ const CurrentExam = ({ exam }: Props) => {
                       className={`${
                         selected[q.id] === "D" && "bg-blue-400 text-white"
                       } hover:bg-blue-400 hover:text-white transition duration-300 ease-in w-full cursor-pointer border-blue-400 border px-3 py-1 rounded`}
-                      onClick={() => {
-                        setSelected((prev) => ({
-                          ...prev,
-                          [q.id]: "D",
-                        }));
-                      }}
+                      onClick={() => inputSelected(q.id, "D")}
                     >
                       <input
                         defaultChecked
@@ -197,6 +187,17 @@ const CurrentExam = ({ exam }: Props) => {
                 </div>
               ))}
             </div>
+          </div>
+          <div className="mt-5">
+            <button
+              disabled={timeLeft > 0}
+              onClick={submit}
+              className={`${
+                timeLeft <= 0 && "cursor-pointer"
+              } w-full bg-black rounded-md px-3 py-2 text-white shadow-md`}
+            >
+              Submit
+            </button>
           </div>
         </div>
       </div>
