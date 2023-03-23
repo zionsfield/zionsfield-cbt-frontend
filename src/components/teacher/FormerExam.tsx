@@ -3,7 +3,13 @@ import useRequest from "../../hooks/useRequest";
 import { useAppSelector } from "../../store/hooks";
 import { padZero } from "../../utils";
 import { Role, SideBarCurrent } from "../../utils/enums";
-import { IError, IExam, IResult, UserState } from "../../utils/typings.d";
+import {
+  IError,
+  IExam,
+  IResult,
+  TeacherResult,
+  UserState,
+} from "../../utils/typings.d";
 import SideBar from "../SideBar";
 
 type Props = {
@@ -13,17 +19,11 @@ type Props = {
 const FormerExam = ({ examId }: Props) => {
   const user = useAppSelector((state) => state.users.user);
   const [exam, setExam] = useState<IExam>();
-  // const [result, setResult] = useState<IResult>();
-  const [results, setResults] = useState<IResult[]>([]);
-  const [students, setStudents] = useState<UserState[]>([]);
-  const { doRequest: getStudents } = useRequest({
-    url: `/api/students-by-subject-class`,
+  const [results, setResults] = useState<TeacherResult[]>([]);
+  const { doRequest: getResults } = useRequest({
+    url: `/api/teachers/results?examId=${examId}`,
     method: "get",
-  });
-  const { doRequest: getResult } = useRequest({
-    url: `/api/students/results?examId=${exam?.id}`,
-    method: "get",
-    // onSuccess: (data) => setResult(data.data),
+    onSuccess: (data) => setResults(data.data),
   });
 
   const { doRequest: getExamById } = useRequest({
@@ -34,36 +34,9 @@ const FormerExam = ({ examId }: Props) => {
   useEffect(() => {
     (async () => {
       await getExamById({}, `/${examId}`);
+      await getResults();
     })();
   }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (!exam) return;
-      const { data, errors } = await getStudents(
-        {},
-        `?subjectClass=${exam?.subjectClass.id}`
-      );
-      if (errors.length === 0) {
-        setStudents(data.data);
-        const arr = await Promise.all(
-          data.data.map(async (u: UserState) => {
-            const { data: r, errors: e } = await getResult(
-              {},
-              `&studentId=${u?.id}`
-            );
-            if (e.length === 0) {
-              console.log(r.data);
-              return r.data;
-            }
-          })
-        );
-        console.log(arr);
-        setResults(arr);
-      }
-      console.log(exam?.questions);
-    })();
-  }, [exam]);
 
   const startTimeRef = useRef<HTMLInputElement>(null!);
 
@@ -145,11 +118,9 @@ const FormerExam = ({ examId }: Props) => {
                 i % 2 === 1 && "bg-gray-100"
               } cursor-pointer hover:bg-gray-100 rounded-md px-5 py-4 flex items-center justify-between mb-2`}
             >
-              <h2 className="text-black text-lg font-bold">
-                {students[i].name}
-              </h2>{" "}
+              <h2 className="text-black text-lg font-bold">{r.name}</h2>{" "}
               <div>
-                {r ? (
+                {r.marks !== undefined ? (
                   <span>
                     <span className="font-semibold">{r.marks}</span> /{" "}
                     {exam.questionNumber}

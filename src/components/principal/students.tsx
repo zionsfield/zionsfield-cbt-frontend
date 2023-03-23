@@ -39,6 +39,12 @@ const PrincipalStudents = (props: Props) => {
     onSuccess: () => window.location.reload(),
   });
 
+  useEffect(() => {
+    (async () => {
+      await loadStudents();
+    })();
+  }, []);
+
   const loadStudents = async () => {
     const query = window.location.search;
     const queryObj = getObjectFromQuery(query);
@@ -54,21 +60,14 @@ const PrincipalStudents = (props: Props) => {
     await getStudents({}, `/?name=${searchRef?.current?.value}&${newQuery}`);
   };
 
-  useEffect(() => {
-    (async () => {
-      await loadStudents();
-    })();
-  }, []);
   const toNew = () => {
-    // const query = window.location.search;
-    // const queryObj = getObjectFromQuery(query);
-    // queryObj["new"] = true;
     const queryObj = {
       new: true,
     };
     const newQuery = getQueryFromObject(queryObj);
     return newQuery;
   };
+
   const viewStudent = (userId: string) => {
     const queryObj = {
       userId,
@@ -77,6 +76,7 @@ const PrincipalStudents = (props: Props) => {
     const query = getQueryFromObject(queryObj);
     return query;
   };
+
   const incPage = async () => {
     setPage((prev) => prev++);
     const queryObj = getObjectFromQuery(window.location.search);
@@ -86,6 +86,7 @@ const PrincipalStudents = (props: Props) => {
     navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
     await loadStudents();
   };
+
   const decPage = async () => {
     setPage((prev) => prev--);
     const queryObj = getObjectFromQuery(window.location.search);
@@ -95,6 +96,7 @@ const PrincipalStudents = (props: Props) => {
     navigate(`${LinkRoutes.DASHBOARD}?${newQuery}`);
     await loadStudents();
   };
+
   const display = () => {
     if (getObjectFromQuery(window.location.search)["new"])
       return <NewStudent />;
@@ -161,7 +163,7 @@ const PrincipalStudents = (props: Props) => {
               </div>
               <div className="mt-5">
                 <div className="mb-2 rounded-md bg-gray-200 text-gray-600 px-5 py-4">
-                  <h2>FULL NAME - EMAIL</h2>
+                  <h2>FULL NAME - EMAIL - CLASS</h2>
                 </div>
                 {students.map((student, i) => (
                   <div
@@ -181,7 +183,12 @@ const PrincipalStudents = (props: Props) => {
                       <h2 className="text-black text-lg font-bold">
                         {student.name}
                       </h2>
-                      <h4 className="text-sm">{student.email}</h4>
+                      <div className="flex space-x-2">
+                        <h4 className="text-sm">{student.email}</h4>
+                        <h4 className="text-sm">
+                          {student.subjectClasses?.[0].class.className}
+                        </h4>
+                      </div>
                     </div>
                     <div className="">
                       <FontAwesomeIcon

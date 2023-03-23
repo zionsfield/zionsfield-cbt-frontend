@@ -26,7 +26,7 @@ const EditStudent = (props: Props) => {
   const [selected, setSelected] = useState<SubjectClass>({});
   const nameRef = useRef<HTMLInputElement>(null!);
   const emailRef = useRef<HTMLInputElement>(null!);
-  const { doRequest: newStudent } = useRequest({
+  const { doRequest: putStudent } = useRequest({
     url: "/api/students",
     method: "put",
   });
@@ -95,7 +95,7 @@ const EditStudent = (props: Props) => {
     };
     console.log(formData);
     const queryObj = getObjectFromQuery(window.location.search);
-    const { data, errors } = await newStudent(formData, `/${queryObj.userId}`);
+    const { data, errors } = await putStudent(formData, `/${queryObj.userId}`);
     console.log(errors);
     setEditStudentErrors(errors);
     if (errors.length === 0) {

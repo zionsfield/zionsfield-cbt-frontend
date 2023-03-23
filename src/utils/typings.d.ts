@@ -1,4 +1,4 @@
-import { Role } from "./enums";
+import { Role, Option } from "./enums";
 
 export interface UserState {
   id: string;
@@ -104,4 +104,9 @@ export interface ITerm {
   startYear: number;
   endYear: number;
   term: number;
+}
+
+export interface TeacherResult {
+  name: string;
+  marks?: number;
 }

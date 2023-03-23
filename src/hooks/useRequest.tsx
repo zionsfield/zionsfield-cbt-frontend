@@ -10,12 +10,12 @@ interface UseRequest {
 }
 
 const useRequest = ({ url, method, body, onSuccess }: UseRequest) => {
-  const doRequest = async (props = {}, extUrl = "", isFd = false) => {
+  const doRequest = async (props = {}, extUrl = ""): Promise<any> => {
     try {
       // @ts-ignore
       const res = await http[method](
         url + extUrl,
-        // @ts-ignore
+
         { ...body, ...props }
       );
       if (onSuccess) {
@@ -27,7 +27,8 @@ const useRequest = ({ url, method, body, onSuccess }: UseRequest) => {
       if (err?.response?.status === 463) {
         console.log("fixing");
         await http.post("/api/users/refresh-token");
-        window.location.reload();
+        // window.location.reload();
+        return await doRequest(props, extUrl);
       }
       return {
         data: null,
