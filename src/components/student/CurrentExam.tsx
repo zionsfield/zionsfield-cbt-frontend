@@ -190,11 +190,9 @@ const CurrentExam = ({ exam }: Props) => {
           </div>
           <div className="mt-5">
             <button
-              disabled={timeLeft > 0}
+              // disabled={timeLeft > 0}
               onClick={submit}
-              className={`${
-                timeLeft <= 0 && "cursor-pointer"
-              } w-full bg-black rounded-md px-3 py-2 text-white shadow-md`}
+              className={`cursor-pointer w-full bg-black rounded-md px-3 py-2 text-white shadow-md`}
             >
               Submit
             </button>
