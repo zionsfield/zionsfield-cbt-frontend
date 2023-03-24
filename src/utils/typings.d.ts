@@ -6,6 +6,7 @@ export interface UserState {
   email: string;
   role: string;
   subjectClasses: ISubjectClass[];
+  blocked?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

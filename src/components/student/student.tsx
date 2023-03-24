@@ -89,6 +89,14 @@ const Student = (props: Props) => {
                 Exam(s) to be written today
               </h2>
             </div>
+            <div className="rounded-md bg-green-200 text-center py-6">
+              <h2 className="text-xl text-green-500">
+                <span className="font-semibold text-3xl">
+                  {user?.subjectClasses?.[0].class.className}
+                </span>{" "}
+                Class
+              </h2>
+            </div>
           </div>
         </div>
         <div className="mt-5">
